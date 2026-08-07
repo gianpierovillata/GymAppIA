@@ -1,0 +1,52 @@
+# .NET
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+build/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# NuGet
+*.nupkg
+*.snupkg
+*.nupkg.props
+*.nupkg.targets
+**/NuGet.Config
+
+# Rider / VS
+.idea/
+.vs/
+.vscode/
+*.user
+*.userprops
+
+# Test results
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# EF Core migrations / local db
+*.db
+*.mdf
+*.ldf
+*.sqlite
+
+# Publish
+/publish/
+publish/
+
+# Misc
+*.log
+.DS_Store
+Thumbs.db
