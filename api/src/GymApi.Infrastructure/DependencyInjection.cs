@@ -1,4 +1,7 @@
+using GymApi.Application.Abstractions;
 using GymApi.Infrastructure.Persistence;
+using GymApi.Infrastructure.Repositories;
+using GymApi.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +21,11 @@ public static class DependencyInjection
 
         services.AddStackExchangeRedisCache(options =>
             options.Configuration = configuration.GetConnectionString("Redis"));
+
+        services.AddSingleton<ICacheService, RedisCacheService>();
+
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 
         return services;
     }

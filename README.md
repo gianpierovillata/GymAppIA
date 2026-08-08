@@ -1,43 +1,43 @@
-# GymAppIA
+# 🏋️ GymAppIA
 
 Sistema de gestión para gimnasios. Maneja información de **clientes**, **entrenadores**, **clases grupales** (salón, spinning, otras actividades), **horarios/turnos** y **planes** ofrecidos a clientes (sin pagos por ahora).
 
-## Stack tecnológico
+## 🧰 Stack tecnológico
 
 | Capa | Tecnología |
 |------|-----------|
-| Frontend | React (Vite) en `app/` |
-| Backend | API mínima en .NET 10 en `api/` |
-| Base de datos | MySQL |
-| ORM | EF Core |
-| Cache | Redis |
-| Orquestación | Aspire (etapa posterior) |
+| 🖥️ Frontend | React (Vite) en `app/` |
+| ⚙️ Backend | API en .NET 10 en `api/` (arquitectura limpia) |
+| 🗄️ Base de datos | MySQL |
+| 🧩 ORM | EF Core (Pomelo) |
+| ⚡ Cache | Redis |
+| 🚀 Orquestación | Aspire (etapa posterior) |
 
-## Estructura del repositorio
+## 📂 Estructura del repositorio
 
 ```
 GymAppIA/
-├── app/        # Frontend React (Vite)
-├── api/        # Backend .NET 10 con arquitectura limpia
+├── app/   → Frontend React (Vite)  — ver app/README.md
+├── api/   → Backend .NET 10        — ver api/README.md
 └── README.md
 ```
 
-## Arquitectura del API (Clean Architecture)
+## 🧱 Arquitectura del API (Clean Architecture)
 
 ```
 api/
 └── src/
-    ├── GymApi.Domain/            # Entidades, enums, reglas de negocio puras (sin dependencias)
-    ├── GymApi.Application/       # Casos de uso, DTOs, interfaces de repositorios
-    ├── GymApi.Infrastructure/    # EF Core (MySQL), implementación de repositorios, cache Redis
-    └── GymApi.Api/               # Controllers, Program.cs, configuración, middleware
+    ├── GymApi.Domain/            # 🧠 Entidades, enums, reglas de negocio puras (sin dependencias)
+    ├── GymApi.Application/       # 📋 Casos de uso, DTOs, interfaces de repositorios
+    ├── GymApi.Infrastructure/    # 🗄️ EF Core (MySQL), repositorios, cache Redis
+    └── GymApi.Api/               # 🌐 Controllers, Program.cs, configuración, middleware
 ```
 
 Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (las flechas indican hacia dónde apuntan las referencias). El Api y la Infrastructure dependen de Application; Application depende de Domain; Domain no depende de nada.
 
-## Plan de desarrollo por etapas
+## 🗺️ Plan de desarrollo por etapas
 
-### Etapa 1 — Base del proyecto ✅
+### ✅ Etapa 1 — Base del proyecto
 - [x] Estructura de carpetas `app/` y `api/` separadas
 - [x] `.gitignore` para cada proyecto
 - [x] Esqueleto del API .NET 10 con arquitectura limpia (compila y responde `/api/health`)
@@ -45,46 +45,56 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 - [ ] Configurar Docker Compose local para MySQL y Redis (desarrollo)
 - [ ] Integración de Aspire (AppHost) para orquestar MySQL, Redis y el API
 
-### Etapa 2 — Modelo de datos y API de clientes
+### ✅ Etapa 2 — Modelo de datos y API de clientes
 - [x] Definir entidades: `Client`, `Trainer`, `ClassActivity`, `Schedule`, `TrainerShift`, `Plan`, `ClientPlan`
 - [x] `DbContext` de EF Core con MySQL y migraciones iniciales (aplicadas en BD)
-- [ ] Repositorios e implementación de caché Redis
-- [ ] CRUD de clientes (endpoints + validación)
+- [x] Repositorios genéricos, `IUnitOfWork` y caché Redis (`ICacheService`)
+- [x] CRUD de clientes (endpoints + validación con FluentValidation + caché)
+  - `GET /api/clients` · `GET /api/clients/{id}` · `POST` · `PUT` · `DELETE` (soft-delete)
 
-### Etapa 3 — Entrenadores y clases
-- [ ] CRUD de entrenadores
-- [ ] CRUD de clases grupales (salón, spinning, otras actividades)
-- [ ] Asignación entrenador ↔ clase
+### ✅ Etapa 3 — Entrenadores y clases
+- [x] CRUD de entrenadores (`/api/trainers`)
+- [x] CRUD de clases grupales salón/spinning/otras (`/api/classes`)
+- [x] Asignación entrenador ↔ clase mediante horarios (`/api/schedules`, incluye nombres en la respuesta)
+- [x] Enums serializados como texto (`Studio`, `Spinning`, `Other`, `Monday`...) y validación con FluentValidation
 
-### Etapa 4 — Horarios / turnos
-- [ ] CRUD de horarios (días de la semana, franjas horarias)
-- [ ] Turnos de clases y de entrenadores
-- [ ] Validación de choques de horario
+### ✅ Etapa 4 — Horarios / turnos
+- [x] CRUD de turnos de entrenadores (`/api/trainer-shifts`)
+- [x] Validación de choques de horario:
+  - Turno vs turno del mismo entrenador (mismo día y franja solapada) → `400`
+  - Turno vs clase asignada (entrenador ocupado) → `400`
+  - Clase vs clase / clase vs turno (entrenador doblemente ocupado) → `400`
 
-### Etapa 5 — Planes y asignación a clientes
+### 🔜 Etapa 5 — Planes y asignación a clientes
 - [ ] CRUD de planes (nombre, descripción, precio de referencia, duración)
 - [ ] Asignación de planes a clientes (`ClientPlan`)
 - [ ] Listado de planes de un cliente y estado de vigencia
 
-### Etapa 6 — Frontend: vista general y navegación
-- [ ] Layout base con navegación (dashboard, clientes, entrenadores, clases, horarios, planes)
+### 🔜 Etapa 6 — Frontend: vista general y navegación
+- [x] Layout base con navegación (dashboard, clientes, entrenadores, clases, horarios, planes)
 - [ ] Conexión del frontend con el API (cliente HTTP / React Query)
 - [ ] Páginas CRUD de cada módulo
 
-### Etapa 7 — Mejoras y despliegue
+### 🔜 Etapa 7 — Mejoras y despliegue
 - [ ] Autenticación/usuarios (etapa futura)
 - [ ] Módulo de pagos (etapa futura)
 - [ ] Despliegue con Aspire (Docker Compose, contenedores, health checks)
 
-## Cómo ejecutar
+## 🚀 Cómo ejecutar
 
 ### API
 ```bash
 cd api
 dotnet restore
 dotnet build
-dotnet run --project src/GymApi.Api
+dotnet run --project src/GymApi.Api --urls http://localhost:5099
 ```
+
+- ✅ Health check: `http://localhost:5099/api/health`
+- 📖 Documentación interactiva (Scalar): `http://localhost:5099/scalar/`
+- 📜 Spec OpenAPI: `http://localhost:5099/openapi/v1.json`
+
+> Detalles completos de endpoints y configuración en [`api/README.md`](api/README.md).
 
 ### Frontend
 ```bash
@@ -93,4 +103,15 @@ npm install
 npm run dev
 ```
 
-> Nota: requiere Node.js (v20+) instalado en el sistema.
+- 🌐 Dev server: `http://localhost:5173` (proxy de `/api` → `http://localhost:5099`)
+
+> Detalles en [`app/README.md`](app/README.md).
+
+## 🔌 Requisitos previos
+
+| Herramienta | Versión |
+|-------------|---------|
+| .NET SDK | 10.0+ |
+| Node.js | 20+ |
+| MySQL | 8.x (BD `gymdb`, usuario `root`) |
+| Redis | 7.x |
