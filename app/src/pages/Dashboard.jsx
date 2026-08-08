@@ -1,7 +1,12 @@
-const stats = [
+import { useEffect, useState } from 'react'
+import { apiGet } from '../api/client.js'
+
+const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+
+const STAT_CARDS = [
   {
+    key: 'clients',
     label: 'Clientes activos',
-    value: '128',
     tone: 'indigo',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -13,8 +18,8 @@ const stats = [
     ),
   },
   {
-    label: 'Entrenadores',
-    value: '14',
+    key: 'trainers',
+    label: 'Entrenadores activos',
     tone: 'cyan',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -25,8 +30,8 @@ const stats = [
     ),
   },
   {
-    label: 'Clases semanales',
-    value: '23',
+    key: 'classes',
+    label: 'Clases',
     tone: 'green',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -38,24 +43,16 @@ const stats = [
     ),
   },
   {
-    label: 'Planes activos',
-    value: '6',
+    key: 'schedules',
+    label: 'Clases programadas',
     tone: 'amber',
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M6 3h12l4 6-10 12L2 9z" />
-        <path d="M2 9h20" />
-        <path d="M9 3l3 6 3-6" />
+        <circle cx="12" cy="12" r="10" />
+        <path d="M12 6v6l4 2" />
       </svg>
     ),
   },
-]
-
-const todayClasses = [
-  { time: '08:00', name: 'Spinning', trainer: 'María López', room: 'Sala Spinning' },
-  { time: '10:00', name: 'Funcional', trainer: 'Carlos Ruiz', room: 'Salón Principal' },
-  { time: '12:00', name: 'Yoga', trainer: 'Ana Pérez', room: 'Salón 2' },
-  { time: '18:00', name: 'Spinning', trainer: 'Jorge Díaz', room: 'Sala Spinning' },
 ]
 
 const modules = [
@@ -66,7 +63,62 @@ const modules = [
   { name: 'Planes', desc: 'Membresías ofrecidas y asignación a clientes.' },
 ]
 
+const formatTime = (time) => time?.slice(0, 5) ?? '--:--'
+
 export default function Dashboard() {
+  const [data, setData] = useState(null)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    let active = true
+
+    Promise.allSettled([
+      apiGet('/api/clients'),
+      apiGet('/api/trainers'),
+      apiGet('/api/classes'),
+      apiGet('/api/schedules'),
+      apiGet('/api/trainershifts'),
+    ]).then((results) => {
+      if (!active) return
+
+      const values = results.map((r) => (r.status === 'fulfilled' ? r.value : []))
+
+      if (results.every((r) => r.status === 'rejected')) {
+        setError('la API no responde')
+        return
+      }
+
+      setData({
+        clients: values[0],
+        trainers: values[1],
+        classes: values[2],
+        schedules: values[3],
+        shifts: values[4],
+      })
+    })
+
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const todayName = DAY_NAMES[new Date().getDay()]
+
+  const activeOf = (items) => (items ?? []).filter((i) => i.isActive).length
+
+  const stats = data
+    ? {
+        clients: activeOf(data.clients),
+        trainers: activeOf(data.trainers),
+        classes: activeOf(data.classes),
+        schedules: activeOf(data.schedules),
+      }
+    : { clients: '…', trainers: '…', classes: '…', schedules: '…' }
+
+  const todayClasses = (data?.schedules ?? []).filter(
+    (s) => s.isActive && s.dayOfWeek === todayName,
+  )
+
   return (
     <section>
       <div className="page-header">
@@ -76,19 +128,18 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="banner info">
-        <p>
-          Vista previa con datos de ejemplo. Los valores se conectarán a la API cuando el backend
-          esté listo.
-        </p>
-      </div>
+      {error && (
+        <div className="banner warning">
+          <p>No se pudo conectar con la API: {error}</p>
+        </div>
+      )}
 
       <div className="stats-grid">
-        {stats.map((s) => (
-          <div key={s.label} className="stat-card">
+        {STAT_CARDS.map((s) => (
+          <div key={s.key} className="stat-card">
             <span className={`stat-icon ${s.tone}`}>{s.icon}</span>
             <div>
-              <div className="stat-value">{s.value}</div>
+              <div className="stat-value">{stats[s.key]}</div>
               <div className="stat-label">{s.label}</div>
             </div>
           </div>
@@ -98,20 +149,27 @@ export default function Dashboard() {
       <div className="grid-2">
         <div className="card">
           <h3>Clases de hoy</h3>
-          <p className="card-sub">Próximas sesiones programadas.</p>
-          <ul className="list">
-            {todayClasses.map((c) => (
-              <li key={`${c.time}-${c.name}`}>
-                <span className="badge indigo">{c.time}</span>
-                <div className="list-main">
-                  <div className="list-title">{c.name}</div>
-                  <div className="list-meta">
-                    {c.trainer} · {c.room}
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <p className="card-sub">{todayName}. Sesiones programadas para este día.</p>
+          {todayClasses.length === 0 ? (
+            <p className="empty-state">No hay clases programadas para hoy.</p>
+          ) : (
+            <ul className="list">
+              {todayClasses
+                .sort((a, b) => a.startTime.localeCompare(b.startTime))
+                .map((c) => (
+                  <li key={c.id}>
+                    <span className="badge indigo">{formatTime(c.startTime)}</span>
+                    <div className="list-main">
+                      <div className="list-title">{c.classActivityName}</div>
+                      <div className="list-meta">
+                        {c.trainerName} · {c.room ?? 'Sin salón'} · hasta{' '}
+                        {formatTime(c.endTime)}
+                      </div>
+                    </div>
+                  </li>
+                ))}
+            </ul>
+          )}
         </div>
 
         <div className="card">
