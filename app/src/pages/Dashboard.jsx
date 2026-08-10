@@ -73,11 +73,11 @@ export default function Dashboard() {
     let active = true
 
     Promise.allSettled([
-      apiGet('/api/clients'),
-      apiGet('/api/trainers'),
-      apiGet('/api/classes'),
-      apiGet('/api/schedules'),
-      apiGet('/api/trainershifts'),
+      apiGet('/clients'),
+      apiGet('/trainers'),
+      apiGet('/classes'),
+      apiGet('/schedules'),
+      apiGet('/trainershifts'),
     ]).then((results) => {
       if (!active) return
 

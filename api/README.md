@@ -11,7 +11,7 @@ api/
 │   ├── GymApi.Application/       # 📋 Servicios de aplicación, DTOs, validadores, interfaces
 │   ├── GymApi.Infrastructure/    # 🗄️ EF Core, repositorios, cache Redis, UnitOfWork
 │   └── GymApi.Api/               # 🌐 Controllers, Program.cs, middleware
-└── GymAppIA.sln
+└── GymApi.slnx
 ```
 
 ## 🏗️ Arquitectura
@@ -77,7 +77,7 @@ api/
 | PUT | `/api/trainer-shifts/{id}` | Actualizar (valida choques) |
 | DELETE | `/api/trainer-shifts/{id}` | Soft-delete |
 
-> ⚠️ La ruta de ruta del controller es `api/TrainerShifts` (el enrutado es insensible a mayúsculas: `/api/trainershifts` también funciona). En el README se muestra en formato kebab para lectura.
+> ⚠️ La ruta del controller es `api/TrainerShifts`. El enrutado es insensible a mayúsculas, por lo que la ruta efectiva es **`/api/trainershifts`** (sin guiones; `/api/trainer-shifts` NO existe). En este README se muestra en formato kebab solo para lectura.
 
 ## 🚦 Reglas de negocio (choques de horario)
 
@@ -129,6 +129,15 @@ dotnet ef database update
 ```
 
 > El proyecto usa `Microsoft.EntityFrameworkCore.Design` fijado en **9.0.0** (compatibilidad con Pomelo 9). `dotnet-ef` global instalado.
+
+- **Aplicar en BD nueva** (crea la BD `gymdb` automáticamente):
+  ```bash
+  dotnet ef database update
+  ```
+- **Datos de prueba**: el dump `backups/gymdb.sql` (raíz del repo) incluye datos ficticios (clientes, entrenadores, clases, horarios y turnos). Para restaurar:
+  ```bash
+  mysql -h localhost -P 3306 -u root < backups/gymdb.sql
+  ```
 
 ## ⚙️ Configuración
 

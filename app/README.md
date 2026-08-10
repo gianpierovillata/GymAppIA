@@ -45,6 +45,10 @@ app/
 
 - `apiGet(path)` — GET a la API
 - `apiPost(path, body)` — POST con JSON
+- `apiPut(path, body)` — PUT con JSON
+- `apiDelete(path)` — DELETE
+
+> ⚠️ **Convención**: los `path` no deben incluir el prefijo `/api` (la base ya lo agrega por defecto). Ej.: `apiGet('/clients')` → `/api/clients`. Un path como `/api/clients` generaría `/api/api/clients` y fallaría con 404.
 
 La URL base se define con `VITE_API_URL` (por defecto `/api`, que el proxy de Vite redirige a la API).
 
@@ -96,5 +100,7 @@ npm run dev
 ## 🔜 Estado actual
 
 - ✅ Layout con navegación responsive (sidebar hamburguesa en pantallas < 1024px).
-- ✅ Dashboard con estadísticas.
-- ⏳ Páginas CRUD de cada módulo (pendiente conectar con el API).
+- ✅ Dashboard conectado al API: estadísticas reales (clientes, entrenadores, clases, horarios) y "Clases de hoy".
+- ⏳ Páginas CRUD de cada módulo (Clientes, Entrenadores, Clases, Horarios, Planes): pendiente de conectar con el API (actualmente muestran un placeholder).
+
+> 💡 La API ya expone los endpoints de todos estos módulos; queda consumirlos desde el frontend.

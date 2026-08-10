@@ -17,8 +17,9 @@ Sistema de gestión para gimnasios. Maneja información de **clientes**, **entre
 
 ```
 GymAppIA/
-├── app/   → Frontend React (Vite)  — ver app/README.md
-├── api/   → Backend .NET 10        — ver api/README.md
+├── app/      → Frontend React (Vite)  — ver app/README.md
+├── api/      → Backend .NET 10        — ver api/README.md
+├── backups/  → Dump SQL de la BD con datos de ejemplo (`gymdb.sql`)
 └── README.md
 ```
 
@@ -47,7 +48,7 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 
 ### ✅ Etapa 2 — Modelo de datos y API de clientes
 - [x] Definir entidades: `Client`, `Trainer`, `ClassActivity`, `Schedule`, `TrainerShift`, `Plan`, `ClientPlan`
-- [x] `DbContext` de EF Core con MySQL y migraciones iniciales (aplicadas en BD)
+- [x] `DbContext` de EF Core con MySQL y migraciones iniciales (aplicadas en BD `gymdb`)
 - [x] Repositorios genéricos, `IUnitOfWork` y caché Redis (`ICacheService`)
 - [x] CRUD de clientes (endpoints + validación con FluentValidation + caché)
   - `GET /api/clients` · `GET /api/clients/{id}` · `POST` · `PUT` · `DELETE` (soft-delete)
@@ -59,7 +60,7 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 - [x] Enums serializados como texto (`Studio`, `Spinning`, `Other`, `Monday`...) y validación con FluentValidation
 
 ### ✅ Etapa 4 — Horarios / turnos
-- [x] CRUD de turnos de entrenadores (`/api/trainer-shifts`)
+- [x] CRUD de turnos de entrenadores (`/api/trainershifts`)
 - [x] Validación de choques de horario:
   - Turno vs turno del mismo entrenador (mismo día y franja solapada) → `400`
   - Turno vs clase asignada (entrenador ocupado) → `400`
@@ -70,10 +71,12 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 - [ ] Asignación de planes a clientes (`ClientPlan`)
 - [ ] Listado de planes de un cliente y estado de vigencia
 
+> ℹ️ Las entidades `Plan` y `ClientPlan` ya existen en el modelo y en la BD; falta el servicio de aplicación, endpoints y frontend.
+
 ### 🔜 Etapa 6 — Frontend: vista general y navegación
 - [x] Layout base con navegación (dashboard, clientes, entrenadores, clases, horarios, planes)
-- [ ] Conexión del frontend con el API (cliente HTTP / React Query)
-- [ ] Páginas CRUD de cada módulo
+- [x] Cliente HTTP (`fetch`) y Dashboard conectado al API (estadísticas y clases del día)
+- [ ] Páginas CRUD de cada módulo (clientes, entrenadores, clases, horarios, planes)
 
 ### 🔜 Etapa 7 — Mejoras y despliegue
 - [ ] Autenticación/usuarios (etapa futura)
@@ -106,6 +109,20 @@ npm run dev
 - 🌐 Dev server: `http://localhost:5173` (proxy de `/api` → `http://localhost:5099`)
 
 > Detalles en [`app/README.md`](app/README.md).
+
+## 🗄️ Backup y datos de prueba
+
+- `backups/gymdb.sql` → dump de la BD `gymdb` con datos ficticios de ejemplo (5 clientes, 4 entrenadores, 5 clases, 7 horarios y 9 turnos) y las migraciones aplicadas.
+- **Restaurar** (crea la BD y carga todo):
+  ```bash
+  mysql -h localhost -P 3306 -u root < backups/gymdb.sql
+  ```
+- **Regenerar el backup** (con la BD corriendo):
+  ```bash
+  mysqldump -h localhost -P 3306 -u root --databases gymdb --routines --triggers --result-file=backups/gymdb.sql
+  ```
+
+> 💡 El dump incluye los registros soft-deleted (`IsActive = 0`); el Dashboard los filtra por `isActive`.
 
 ## 🔌 Requisitos previos
 
