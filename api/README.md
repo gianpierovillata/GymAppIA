@@ -194,6 +194,21 @@ dotnet run --project src/GymApi.Api --urls http://localhost:5099
 - 💰 Módulo de pagos.
 - 🚀 Orquestación con Aspire / Docker Compose.
 
+## 🚀 Despliegue (MonsterASP.NET)
+
+Hosting Windows/IIS que soporta .NET 10 y MySQL (plan Free disponible). Resumen:
+
+1. `dotnet publish src/GymApi.Api -c Release -o publish` → genera `publish/` con el `web.config` (InProcess).
+2. Subir `publish/` por FTP/SFTP a la carpeta web del sitio.
+3. Configurar en el panel (variables de entorno o `appsettings.Production.json`):
+   ```
+   ConnectionStrings__MySql = Server=TU_HOST;Port=3306;Database=gymdb;User=TU_USER;Password=TU_PASS;
+   ConnectionStrings__Redis = rediss://default:TU_TOKEN@TU_DB.upstash.io:6379
+   ```
+4. Aplicar migraciones a la BD remota (conexión remota o `dotnet ef migrations script -o up.sql`).
+
+> ⚠️ Pendientes para producción: CORS (para el frontend en Vercel) y fallback de caché en memoria si Redis no está disponible. Más detalles en el [`README.md`](../README.md) central.
+
 ## 📦 Paquetes clave
 
 | Paquete | Propósito |

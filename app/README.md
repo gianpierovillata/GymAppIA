@@ -92,6 +92,33 @@ npm run dev
 
 > ⚠️ Si el puerto 5173 está ocupado, Vite usa automáticamente el siguiente disponible (p. ej. 5174).
 
+## 🚀 Despliegue (Vercel, monorepo)
+
+Al importar el repo en Vercel:
+
+- **Root Directory**: `app`
+- **Framework Preset**: `Vite`
+- **Build Command**: `npm run build`
+
+O con `vercel.json` en la raíz del repo:
+
+```json
+{
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rootDirectory": "app"
+}
+```
+
+Definir la variable de entorno **antes del build** (el dev server usa el proxy `/api`, pero en Vercel no hay proxy):
+
+```
+VITE_API_URL = https://tu-app.monsterasp.net
+```
+
+> ⚠️ En producción la API debe tener habilitado **CORS** para `https://*.vercel.app`. Detalles en el [`README.md`](../README.md) central.
+
 ## 📦 Dependencias
 
 | Paquete | Versión | Propósito |
