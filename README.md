@@ -104,6 +104,8 @@ dotnet run --project src/GymApi.Api --urls http://localhost:5099
 - 📖 Documentación interactiva (Scalar): `http://localhost:5099/scalar/`
 - 📜 Spec OpenAPI: `http://localhost:5099/openapi/v1.json`
 
+> 🧰 **Reinstalar desde cero / máquina nueva**: instalar el tool global `dotnet-ef`, correr `dotnet restore` y `dotnet ef database update --project src/GymApi.Infrastructure --startup-project src/GymApi.Api` desde `api/` (crea la BD `gymdb` y aplica las migraciones), o restaurar `backups/gymdb.sql`. Detalles completos en [`api/README.md`](api/README.md).
+
 > Detalles completos de endpoints y configuración en [`api/README.md`](api/README.md).
 
 ### Frontend

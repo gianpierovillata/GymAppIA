@@ -134,24 +134,64 @@ La superposición se determina con `StartTime < otroEnd && otroStart < End`.
 ## 🗄️ Base de datos
 
 - **Motor**: MySQL (`gymdb`), conexión en `appsettings.json` → `ConnectionStrings:MySql`.
-- **Migraciones**: carpeta `GymApi.Infrastructure/Migrations`. Para crear una nueva:
+- **Migraciones**: carpeta `GymApi.Infrastructure/Migrations`. Aplicadas hasta el momento:
+  - `20260807165232_InitialCreate`
+  - `20260811134650_AddPersonalTrainerAndMeasurements`
+
+> ⚠️ Los comandos `dotnet ef` se ejecutan desde la raíz `api/` (NO dentro de `src/GymApi.Api`) y siempre con `--project src/GymApi.Infrastructure --startup-project src/GymApi.Api`. `dotnet ef` compila el proyecto, por lo que hay que **detener el API antes** de usarlo (los DLLs quedan bloqueados por el proceso en ejecución).
+
+### 🧰 Prerrequisito: instalar `dotnet-ef` (tool global)
+
+En una máquina nueva (o tras reinstalar):
 
 ```bash
-cd api/src/GymApi.Api
-dotnet ef migrations add NombreMigracion
-dotnet ef database update
+dotnet tool install --global dotnet-ef
 ```
 
-> El proyecto usa `Microsoft.EntityFrameworkCore.Design` fijado en **9.0.0** (compatibilidad con Pomelo 9). `dotnet-ef` global instalado.
+### 📦 Reinstalar / iniciar desde cero
 
-- **Aplicar en BD nueva** (crea la BD `gymdb` automáticamente):
-  ```bash
-  dotnet ef database update
-  ```
-- **Datos de prueba**: el dump `backups/gymdb.sql` (raíz del repo) incluye datos ficticios (clientes, entrenadores, clases, horarios y turnos). Para restaurar:
-  ```bash
-  mysql -h localhost -P 3306 -u root < backups/gymdb.sql
-  ```
+Con MySQL corriendo y la BD `gymdb` creada o vacía:
+
+```bash
+cd api
+dotnet restore
+dotnet build
+dotnet ef database update --project src/GymApi.Infrastructure --startup-project src/GymApi.Api
+```
+
+`dotnet ef database update` **crea la BD `gymdb` automáticamente** y aplica todas las migraciones pendientes (tablas + índices).
+
+### ➕ Crear una migración nueva
+
+```bash
+cd api
+dotnet ef migrations add NombreMigracion --project src/GymApi.Infrastructure --startup-project src/GymApi.Api
+dotnet ef database update --project src/GymApi.Infrastructure --startup-project src/GymApi.Api
+```
+
+> ⚠️ Detener el API en ejecución antes de crear/aplicar migraciones (bloquea los binarios):
+> ```powershell
+> Get-CimInstance Win32_Process -Filter "Name='dotnet.exe'" |
+>   Where-Object { $_.CommandLine -match 'GymApi.Api' } |
+>   ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
+> ```
+
+### 🔎 Ver estado de las migraciones
+
+```bash
+cd api
+dotnet ef migrations list --project src/GymApi.Infrastructure --startup-project src/GymApi.Api
+```
+
+### 🧪 Datos de prueba
+
+El dump `backups/gymdb.sql` (raíz del repo) incluye datos ficticios (clientes, entrenadores, clases, horarios y turnos). Restaurarlo **después** de aplicar migraciones (o directamente: el dump también contiene las migraciones aplicadas):
+
+```bash
+mysql -h localhost -P 3306 -u root < backups/gymdb.sql
+```
+
+> 💡 Ante una reinstalación completa: aplicar migraciones (paso "Reinstalar desde cero") **o** restaurar el dump son caminos válidos. El dump es útil cuando querés conservar los datos de ejemplo; las migraciones, cuando arrancás con BD vacía.
 
 ## ⚙️ Configuración
 
