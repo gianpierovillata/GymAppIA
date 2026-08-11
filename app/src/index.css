@@ -765,6 +765,150 @@ body {
   }
 }
 
+/* ===== Ficha de cliente ===== */
+.modal-wide {
+  max-width: 760px;
+}
+
+.modal-body {
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 1.25rem;
+}
+
+.avatar-lg {
+  width: 52px;
+  height: 52px;
+  font-size: 1.1rem;
+}
+
+.detail-section {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.detail-section:last-child {
+  border-bottom: none;
+  padding-bottom: 0.25rem;
+}
+
+.detail-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+
+.detail-section-head h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.detail-actions .btn {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.82rem;
+}
+
+.trainer-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-alt);
+}
+
+.assign-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.assign-row .select {
+  flex: 1;
+  min-width: 240px;
+}
+
+.assign-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.assign-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.filter {
+  width: auto;
+  min-width: 180px;
+}
+
+.select {
+  background: var(--surface);
+}
+
+/* ===== Métricas corporales ===== */
+.metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+  margin-bottom: 1.25rem;
+}
+
+.metric-tile {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem 1rem;
+}
+
+.metric-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.metric-unit {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.metric-label {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  margin-top: 0.15rem;
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 1024px) {
   .topbar {
@@ -801,6 +945,10 @@ body {
   .form-field-full {
     grid-column: auto;
   }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 520px) {
@@ -810,5 +958,9 @@ body {
 
   .content {
     padding: 1rem;
+  }
+
+  .metric-grid {
+    grid-template-columns: 1fr;
   }
 }

@@ -25,6 +25,8 @@ public class AppDbContext : DbContext
 
     public DbSet<ClientPlan> ClientPlans => Set<ClientPlan>();
 
+    public DbSet<ClientMeasurement> ClientMeasurements => Set<ClientMeasurement>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);

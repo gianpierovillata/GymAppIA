@@ -5,6 +5,7 @@ import Clients from './pages/Clients.jsx'
 import Trainers from './pages/Trainers.jsx'
 import Classes from './pages/Classes.jsx'
 import Schedules from './pages/Schedules.jsx'
+import TrainerShifts from './pages/TrainerShifts.jsx'
 import Plans from './pages/Plans.jsx'
 
 export default function App() {
@@ -16,6 +17,7 @@ export default function App() {
         <Route path="entrenadores" element={<Trainers />} />
         <Route path="clases" element={<Classes />} />
         <Route path="horarios" element={<Schedules />} />
+        <Route path="turnos" element={<TrainerShifts />} />
         <Route path="planes" element={<Plans />} />
       </Route>
     </Routes>

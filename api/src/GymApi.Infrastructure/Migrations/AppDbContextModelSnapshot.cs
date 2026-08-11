@@ -98,6 +98,9 @@ namespace GymApi.Infrastructure.Migrations
                         .HasMaxLength(30)
                         .HasColumnType("varchar(30)");
 
+                    b.Property<Guid?>("TrainerId")
+                        .HasColumnType("char(36)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
@@ -106,7 +109,61 @@ namespace GymApi.Infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
+                    b.HasIndex("TrainerId");
+
                     b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("GymApi.Domain.Entities.ClientMeasurement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("char(36)");
+
+                    b.Property<decimal?>("BodyFatPercentage")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("decimal(5,2)");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("char(36)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal?>("HeightCm")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("decimal(6,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<DateOnly>("MeasuredOn")
+                        .HasColumnType("date");
+
+                    b.Property<decimal?>("MuscleMassKg")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("decimal(6,2)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<decimal?>("WaistCm")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("decimal(6,2)");
+
+                    b.Property<decimal?>("WeightKg")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("decimal(6,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId", "MeasuredOn");
+
+                    b.ToTable("ClientMeasurements");
                 });
 
             modelBuilder.Entity("GymApi.Domain.Entities.ClientPlan", b =>
@@ -307,6 +364,27 @@ namespace GymApi.Infrastructure.Migrations
                     b.ToTable("TrainerShifts");
                 });
 
+            modelBuilder.Entity("GymApi.Domain.Entities.Client", b =>
+                {
+                    b.HasOne("GymApi.Domain.Entities.Trainer", "Trainer")
+                        .WithMany("Clients")
+                        .HasForeignKey("TrainerId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Trainer");
+                });
+
+            modelBuilder.Entity("GymApi.Domain.Entities.ClientMeasurement", b =>
+                {
+                    b.HasOne("GymApi.Domain.Entities.Client", "Client")
+                        .WithMany("Measurements")
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+                });
+
             modelBuilder.Entity("GymApi.Domain.Entities.ClientPlan", b =>
                 {
                     b.HasOne("GymApi.Domain.Entities.Client", "Client")
@@ -364,6 +442,8 @@ namespace GymApi.Infrastructure.Migrations
             modelBuilder.Entity("GymApi.Domain.Entities.Client", b =>
                 {
                     b.Navigation("ClientPlans");
+
+                    b.Navigation("Measurements");
                 });
 
             modelBuilder.Entity("GymApi.Domain.Entities.Plan", b =>
@@ -373,6 +453,8 @@ namespace GymApi.Infrastructure.Migrations
 
             modelBuilder.Entity("GymApi.Domain.Entities.Trainer", b =>
                 {
+                    b.Navigation("Clients");
+
                     b.Navigation("Schedules");
 
                     b.Navigation("Shifts");

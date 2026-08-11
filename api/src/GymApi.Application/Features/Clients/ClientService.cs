@@ -12,6 +12,7 @@ public class ClientService
     private static readonly TimeSpan CacheExpiration = TimeSpan.FromMinutes(5);
 
     private readonly IGenericRepository<Client> _clients;
+    private readonly IGenericRepository<Trainer> _trainers;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICacheService _cache;
     private readonly IValidator<CreateClientRequest> _createValidator;
@@ -19,12 +20,14 @@ public class ClientService
 
     public ClientService(
         IGenericRepository<Client> clients,
+        IGenericRepository<Trainer> trainers,
         IUnitOfWork unitOfWork,
         ICacheService cache,
         IValidator<CreateClientRequest> createValidator,
         IValidator<UpdateClientRequest> updateValidator)
     {
         _clients = clients;
+        _trainers = trainers;
         _unitOfWork = unitOfWork;
         _cache = cache;
         _createValidator = createValidator;
@@ -38,7 +41,10 @@ public class ClientService
             async ct =>
             {
                 var all = await _clients.GetAllAsync(ct);
-                return all.Select(ClientResponse.From).ToList();
+                var trainerNames = await GetTrainerNamesAsync(ct);
+                return all
+                    .Select(c => ClientResponse.From(c, ResolveTrainerName(trainerNames, c.TrainerId)))
+                    .ToList();
             },
             CacheExpiration,
             cancellationToken);
@@ -55,7 +61,16 @@ public class ClientService
             async ct =>
             {
                 var client = await _clients.GetByIdAsync(id, ct);
-                return client is null ? null : ClientResponse.From(client);
+                if (client is null)
+                {
+                    return null;
+                }
+
+                var trainerName = client.TrainerId is null
+                    ? null
+                    : await GetTrainerNameAsync(client.TrainerId.Value, ct);
+
+                return ClientResponse.From(client, trainerName);
             },
             CacheExpiration,
             cancellationToken);
@@ -114,6 +129,43 @@ public class ClientService
         return ClientResponse.From(client);
     }
 
+    public async Task<ClientResponse> AssignPersonalTrainerAsync(
+        Guid id,
+        AssignPersonalTrainerRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var client = await _clients.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"El cliente con id {id} no existe.");
+
+        if (request.TrainerId is Guid trainerId)
+        {
+            var trainer = await _trainers.GetByIdAsync(trainerId, cancellationToken)
+                ?? throw new KeyNotFoundException($"El entrenador con id {trainerId} no existe.");
+
+            if (!trainer.IsActive)
+            {
+                throw new ValidationException("No se puede asignar un entrenador inactivo.");
+            }
+
+            client.TrainerId = trainerId;
+        }
+        else
+        {
+            client.TrainerId = null;
+        }
+
+        _clients.Update(client);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await InvalidateAsync(client.Id, cancellationToken);
+
+        var trainerName = client.TrainerId is null
+            ? null
+            : await GetTrainerNameAsync(client.TrainerId.Value, cancellationToken);
+
+        return ClientResponse.From(client, trainerName);
+    }
+
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var client = await _clients.GetByIdAsync(id, cancellationToken)
@@ -125,6 +177,21 @@ public class ClientService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         await InvalidateAsync(client.Id, cancellationToken);
+    }
+
+    private async Task<IDictionary<Guid, string>> GetTrainerNamesAsync(CancellationToken cancellationToken)
+    {
+        var trainers = await _trainers.FindAsync(t => t.IsActive, cancellationToken);
+        return trainers.ToDictionary(t => t.Id, t => $"{t.FirstName} {t.LastName}");
+    }
+
+    private static string? ResolveTrainerName(IDictionary<Guid, string> names, Guid? trainerId)
+        => trainerId is Guid id && names.TryGetValue(id, out var name) ? name : null;
+
+    private async Task<string?> GetTrainerNameAsync(Guid trainerId, CancellationToken cancellationToken)
+    {
+        var trainer = await _trainers.GetByIdAsync(trainerId, cancellationToken);
+        return trainer is null ? null : $"{trainer.FirstName} {trainer.LastName}";
     }
 
     private async Task EnsureEmailIsAvailableAsync(string email, Guid? currentId, CancellationToken cancellationToken)

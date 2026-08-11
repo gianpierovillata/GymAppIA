@@ -16,5 +16,11 @@ public class Client : AuditableEntity
 
     public string? Address { get; set; }
 
+    public Guid? TrainerId { get; set; }
+
+    public Trainer? Trainer { get; set; }
+
     public ICollection<ClientPlan> ClientPlans { get; set; } = [];
+
+    public ICollection<ClientMeasurement> Measurements { get; set; } = [];
 }

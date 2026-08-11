@@ -29,6 +29,13 @@ public class TrainersController : ControllerBase
         return Ok(trainer);
     }
 
+    [HttpGet("{id:guid}/clients")]
+    public async Task<IActionResult> GetClients(Guid id, CancellationToken cancellationToken)
+    {
+        var clients = await _trainerService.GetClientsAsync(id, cancellationToken);
+        return Ok(clients);
+    }
+
     [HttpPost]
     public async Task<IActionResult> Create(CreateTrainerRequest request, CancellationToken cancellationToken)
     {

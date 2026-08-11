@@ -17,4 +17,6 @@ public class Trainer : AuditableEntity
     public ICollection<Schedule> Schedules { get; set; } = [];
 
     public ICollection<TrainerShift> Shifts { get; set; } = [];
+
+    public ICollection<Client> Clients { get; set; } = [];
 }

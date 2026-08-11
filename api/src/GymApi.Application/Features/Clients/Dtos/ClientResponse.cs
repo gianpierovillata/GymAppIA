@@ -10,11 +10,13 @@ public record ClientResponse(
     string? Phone,
     DateOnly? BirthDate,
     string? Address,
+    Guid? TrainerId,
+    string? TrainerName,
     bool IsActive,
     DateTime CreatedAt,
     DateTime? UpdatedAt)
 {
-    public static ClientResponse From(Client client) =>
+    public static ClientResponse From(Client client, string? trainerName = null) =>
         new(
             client.Id,
             client.FirstName,
@@ -23,6 +25,8 @@ public record ClientResponse(
             client.Phone,
             client.BirthDate,
             client.Address,
+            client.TrainerId,
+            trainerName,
             client.IsActive,
             client.CreatedAt,
             client.UpdatedAt);

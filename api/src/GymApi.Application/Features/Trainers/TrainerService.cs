@@ -1,5 +1,6 @@
 using FluentValidation;
 using GymApi.Application.Abstractions;
+using GymApi.Application.Features.Clients.Dtos;
 using GymApi.Application.Features.Trainers.Dtos;
 using GymApi.Domain.Entities;
 
@@ -12,6 +13,7 @@ public class TrainerService
     private static readonly TimeSpan CacheExpiration = TimeSpan.FromMinutes(5);
 
     private readonly IGenericRepository<Trainer> _trainers;
+    private readonly IGenericRepository<Client> _clients;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICacheService _cache;
     private readonly IValidator<CreateTrainerRequest> _createValidator;
@@ -19,12 +21,14 @@ public class TrainerService
 
     public TrainerService(
         IGenericRepository<Trainer> trainers,
+        IGenericRepository<Client> clients,
         IUnitOfWork unitOfWork,
         ICacheService cache,
         IValidator<CreateTrainerRequest> createValidator,
         IValidator<UpdateTrainerRequest> updateValidator)
     {
         _trainers = trainers;
+        _clients = clients;
         _unitOfWork = unitOfWork;
         _cache = cache;
         _createValidator = createValidator;
@@ -106,6 +110,20 @@ public class TrainerService
         await InvalidateAsync(trainer.Id, cancellationToken);
 
         return TrainerResponse.From(trainer);
+    }
+
+    public async Task<IReadOnlyList<ClientResponse>> GetClientsAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var trainer = await _trainers.GetByIdAsync(id, cancellationToken)
+            ?? throw new KeyNotFoundException($"El entrenador con id {id} no existe.");
+
+        var clients = await _clients.FindAsync(
+            c => c.TrainerId == trainer.Id && c.IsActive,
+            cancellationToken);
+
+        return clients.Select(c => ClientResponse.From(c)).ToList();
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)

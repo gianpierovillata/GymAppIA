@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import ClientDetailModal from '../components/ClientDetailModal.jsx'
 import { apiDelete, apiGet, apiPost, apiPut } from '../api/client.js'
 
 const EMPTY_FORM = {
@@ -20,6 +21,7 @@ export default function Clients() {
   const [error, setError] = useState(null)
   const [search, setSearch] = useState('')
   const [modal, setModal] = useState(null)
+  const [viewClient, setViewClient] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [toast, setToast] = useState(null)
 
@@ -162,6 +164,13 @@ export default function Clients() {
                       <td className="td-actions">
                         <button
                           className="icon-btn"
+                          title="Ver ficha"
+                          onClick={() => setViewClient(c)}
+                        >
+                          <EyeIcon />
+                        </button>
+                        <button
+                          className="icon-btn"
                           title="Editar"
                           onClick={() => setModal({ mode: 'edit', client: c })}
                         >
@@ -182,6 +191,14 @@ export default function Clients() {
             </div>
           )}
         </div>
+      )}
+
+      {viewClient && (
+        <ClientDetailModal
+          clientId={viewClient.id}
+          onClose={() => setViewClient(null)}
+          onUpdated={loadClients}
+        />
       )}
 
       {modal && (
@@ -411,6 +428,15 @@ function EditIcon() {
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
       <path d="m15 5 4 4" />
+    </svg>
+  )
+}
+
+function EyeIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
     </svg>
   )
 }

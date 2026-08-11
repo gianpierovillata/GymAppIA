@@ -43,6 +43,16 @@ public class ClientsController : ControllerBase
         return Ok(client);
     }
 
+    [HttpPut("{id:guid}/personal-trainer")]
+    public async Task<IActionResult> AssignPersonalTrainer(
+        Guid id,
+        AssignPersonalTrainerRequest request,
+        CancellationToken cancellationToken)
+    {
+        var client = await _clientService.AssignPersonalTrainerAsync(id, request, cancellationToken);
+        return Ok(client);
+    }
+
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
     {

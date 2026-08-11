@@ -35,5 +35,15 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
             .WithOne(cp => cp.Client)
             .HasForeignKey(cp => cp.ClientId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(e => e.Trainer)
+            .WithMany(t => t.Clients)
+            .HasForeignKey(e => e.TrainerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(e => e.Measurements)
+            .WithOne(m => m.Client)
+            .HasForeignKey(m => m.ClientId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
