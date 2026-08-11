@@ -35,17 +35,29 @@ api/
 ### Clientes
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/api/clients` | Listar clientes |
+| GET | `/api/clients` | Listar clientes (incluye `trainerId` y `trainerName`) |
 | GET | `/api/clients/{id}` | Obtener por id |
 | POST | `/api/clients` | Crear |
 | PUT | `/api/clients/{id}` | Actualizar |
+| PUT | `/api/clients/{id}/personal-trainer` | Asignar/quitar entrenador personal (`trainerId` nullable) |
 | DELETE | `/api/clients/{id}` | Soft-delete |
+
+### Mediciones corporales de un cliente
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/clients/{clientId}/measurements` | Listar mediciones del cliente |
+| POST | `/api/clients/{clientId}/measurements` | Registrar medición (peso, altura, IMC, % grasa, masa muscular, cintura, notas) |
+| PUT | `/api/clients/{clientId}/measurements/{id}` | Actualizar medición |
+| DELETE | `/api/clients/{clientId}/measurements/{id}` | Eliminar medición |
+
+> El IMC se calcula en el backend a partir de peso y altura (`peso / altura²`).
 
 ### Entrenadores
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | GET | `/api/trainers` | Listar entrenadores |
 | GET | `/api/trainers/{id}` | Obtener por id |
+| GET | `/api/trainers/{id}/clients` | Clientes activos asignados a un entrenador |
 | POST | `/api/trainers` | Crear |
 | PUT | `/api/trainers/{id}` | Actualizar |
 | DELETE | `/api/trainers/{id}` | Soft-delete |
@@ -94,6 +106,7 @@ La superposición se determina con `StartTime < otroEnd && otroStart < End`.
 | Clave | Contenido |
 |-------|-----------|
 | `clients:all` · `clients:{id}` | Clientes |
+| `clients:{id}:measurements` | Mediciones del cliente |
 | `trainers:all` · `trainers:{id}` | Entrenadores |
 | `classes:all` · `classes:{id}` | Clases |
 | `schedules:all` · `schedules:{id}` | Horarios |
@@ -104,9 +117,10 @@ La superposición se determina con `StartTime < otroEnd && otroStart < End`.
 ## 🧩 Entidades y enums
 
 ### Entidades
-- `Client` — cliente del gimnasio (nombre, email, teléfono)
+- `Client` — cliente del gimnasio (nombre, email, teléfono, entrenador personal opcional)
+- `ClientMeasurement` — medición corporal de un cliente (peso, altura, % grasa, masa muscular, cintura, notas)
 - `Trainer` — entrenador (nombre, email, teléfono, especialidad)
-- `ClassActivity` — clase grupal (nombre, categoría, capacidad)
+- `ClassActivity` — clase grupal (nombre, categoría, duración, capacidad)
 - `Schedule` — asignación de una clase a un entrenador en un día y franja (con salón)
 - `TrainerShift` — turno disponible de un entrenador (día + franja)
 - `Plan` — plan de membresía (nombre, descripción, precio de referencia, duración)
@@ -171,6 +185,14 @@ dotnet run --project src/GymApi.Api --urls http://localhost:5099
 >   Where-Object { $_.CommandLine -match 'GymApi.Api' } |
 >   ForEach-Object { Stop-Process -Id $_.ProcessId -Force }
 > ```
+
+## 🔜 Pendiente por implementar
+
+- 💳 **Planes y `ClientPlan`**: las entidades ya existen en el modelo y la BD, pero falta servicio de aplicación, endpoints y frontend.
+- 🗓️ **Vista semanal de horarios** (agregación del lado del API).
+- 🔐 Autenticación/usuarios.
+- 💰 Módulo de pagos.
+- 🚀 Orquestación con Aspire / Docker Compose.
 
 ## 📦 Paquetes clave
 

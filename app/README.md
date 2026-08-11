@@ -17,27 +17,31 @@ app/
     ├── api/
     │   └── client.js       # Cliente HTTP (fetch) hacia la API
     ├── components/
-    │   ├── Layout.jsx          # Layout con sidebar responsive
-    │   └── PlaceholderPage.jsx # Componente de página en construcción
+    │   ├── Layout.jsx              # Layout con sidebar responsive
+    │   ├── ClientDetailModal.jsx   # Ficha de cliente (entrenador personal + mediciones)
+    │   ├── TrainerDetailModal.jsx  # Ficha de entrenador (clientes asignados + turnos)
+    │   └── PlaceholderPage.jsx     # Componente de página en construcción
     └── pages/
         ├── Dashboard.jsx   # Vista principal con estadísticas
-        ├── Clients.jsx     # Clientes
-        ├── Trainers.jsx    # Entrenadores
-        ├── Classes.jsx     # Clases grupales
-        ├── Schedules.jsx   # Horarios/asignaciones
+        ├── Clients.jsx     # CRUD de clientes
+        ├── Trainers.jsx    # CRUD de entrenadores
+        ├── Classes.jsx     # CRUD de clases grupales
+        ├── Schedules.jsx   # CRUD de horarios/asignaciones
+        ├── TrainerShifts.jsx # CRUD de turnos de trabajo
         └── Plans.jsx       # Planes (placeholder)
 ```
 
 ## 🧭 Rutas
 
-| Ruta | Página |
-|------|--------|
-| `/` | Dashboard |
-| `/clientes` | Clientes |
-| `/entrenadores` | Entrenadores |
-| `/clases` | Clases |
-| `/horarios` | Horarios |
-| `/planes` | Planes |
+| Ruta | Página | Estado |
+|------|--------|--------|
+| `/` | Dashboard | ✅ |
+| `/clientes` | Clientes | ✅ CRUD + ficha |
+| `/entrenadores` | Entrenadores | ✅ CRUD + ficha |
+| `/clases` | Clases | ✅ CRUD |
+| `/horarios` | Horarios | ✅ CRUD |
+| `/turnos` | Turnos de trabajo | ✅ CRUD |
+| `/planes` | Planes | ⏳ placeholder |
 
 ## 🔌 Cliente HTTP
 
@@ -97,10 +101,21 @@ npm run dev
 | `vite` | ^7 | Dev server y build |
 | `@vitejs/plugin-react` | ^5 | Soporte JSX para Vite |
 
-## 🔜 Estado actual
+## 📦 Funcionalidades ya cubiertas
 
-- ✅ Layout con navegación responsive (sidebar hamburguesa en pantallas < 1024px).
-- ✅ Dashboard conectado al API: estadísticas reales (clientes, entrenadores, clases, horarios) y "Clases de hoy".
-- ⏳ Páginas CRUD de cada módulo (Clientes, Entrenadores, Clases, Horarios, Planes): pendiente de conectar con el API (actualmente muestran un placeholder).
+- 🗂️ **CRUD de Clientes** (`/clientes`): búsqueda, crear/editar, eliminar (soft-delete), toasts y confirmación.
+- 🧑‍🏫 **Ficha de cliente** (botón 👁): asignación de entrenador personal con **filtro por especialidad** y CRUD de **mediciones corporales** (peso, altura, IMC, % grasa, masa muscular, cintura).
+- 🏋️ **CRUD de Entrenadores** (`/entrenadores`): perfil, especialidad (con sugerencias) y eliminación.
+- 👥 **Ficha de entrenador** (botón 👁): clientes asignados y turnos de trabajo.
+- 🏟️ **CRUD de Clases** (`/clases`): categoría (salón/spinning/otras), duración y capacidad.
+- 📅 **CRUD de Horarios** (`/horarios`): clase ↔ entrenador, día, franja y salón; filtros por clase/entrenador/día.
+- ⏰ **CRUD de Turnos de trabajo** (`/turnos`): franjas de disponibilidad de cada entrenador; filtros.
+- 📊 **Dashboard**: estadísticas reales y "Clases de hoy".
+- ⚠️ Los errores de validación del API (por ejemplo choques de horario) se muestran como toast o banner.
 
-> 💡 La API ya expone los endpoints de todos estos módulos; queda consumirlos desde el frontend.
+## 🔜 Pendiente por implementar
+
+- 💳 **Planes** (`/planes`): CRUD de planes y asignación a clientes (página placeholder; las entidades ya existen en la BD).
+- 🗓️ **Vista semanal de horarios**: grilla por día/salón (hoy la gestión es por tabla).
+- 🔐 Autenticación/usuarios.
+- 💰 Módulo de pagos.

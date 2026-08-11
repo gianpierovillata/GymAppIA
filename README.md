@@ -1,6 +1,6 @@
 # 🏋️ GymAppIA
 
-Sistema de gestión para gimnasios. Maneja información de **clientes**, **entrenadores**, **clases grupales** (salón, spinning, otras actividades), **horarios/turnos** y **planes** ofrecidos a clientes (sin pagos por ahora).
+Sistema de gestión para gimnasios. Maneja información de **clientes** (con entrenador personal y datos corporales), **entrenadores** (con turnos de trabajo), **clases grupales** (salón, spinning, otras actividades), **horarios/asignaciones** y **turnos**. Los **planes** ofrecidos a clientes quedan como etapa futura (sin pagos por ahora).
 
 ## 🧰 Stack tecnológico
 
@@ -47,16 +47,18 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 - [ ] Integración de Aspire (AppHost) para orquestar MySQL, Redis y el API
 
 ### ✅ Etapa 2 — Modelo de datos y API de clientes
-- [x] Definir entidades: `Client`, `Trainer`, `ClassActivity`, `Schedule`, `TrainerShift`, `Plan`, `ClientPlan`
-- [x] `DbContext` de EF Core con MySQL y migraciones iniciales (aplicadas en BD `gymdb`)
+- [x] Entidades: `Client`, `ClientMeasurement`, `Trainer`, `ClassActivity`, `Schedule`, `TrainerShift`, `Plan`, `ClientPlan`
+- [x] `DbContext` de EF Core con MySQL y migraciones aplicadas en BD `gymdb`
 - [x] Repositorios genéricos, `IUnitOfWork` y caché Redis (`ICacheService`)
 - [x] CRUD de clientes (endpoints + validación con FluentValidation + caché)
   - `GET /api/clients` · `GET /api/clients/{id}` · `POST` · `PUT` · `DELETE` (soft-delete)
 
-### ✅ Etapa 3 — Entrenadores y clases
-- [x] CRUD de entrenadores (`/api/trainers`)
-- [x] CRUD de clases grupales salón/spinning/otras (`/api/classes`)
+### ✅ Etapa 3 — Entrenadores, clases y fichas
+- [x] CRUD de entrenadores (`/api/trainers`) y clases grupales (`/api/classes`)
 - [x] Asignación entrenador ↔ clase mediante horarios (`/api/schedules`, incluye nombres en la respuesta)
+- [x] 🧑‍🏫 Entrenador personal del cliente: `PUT /api/clients/{id}/personal-trainer`
+- [x] 📏 Mediciones corporales del cliente: CRUD `/api/clients/{clientId}/measurements` (peso, altura, IMC, % grasa, masa muscular, cintura, notas)
+- [x] 👥 Clientes asignados a un entrenador: `GET /api/trainers/{id}/clients`
 - [x] Enums serializados como texto (`Studio`, `Spinning`, `Other`, `Monday`...) y validación con FluentValidation
 
 ### ✅ Etapa 4 — Horarios / turnos
@@ -66,17 +68,22 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
   - Turno vs clase asignada (entrenador ocupado) → `400`
   - Clase vs clase / clase vs turno (entrenador doblemente ocupado) → `400`
 
-### 🔜 Etapa 5 — Planes y asignación a clientes
+### ✅ Etapa 5 — Frontend completo
+- [x] Layout responsive con navegación (dashboard, clientes, entrenadores, clases, horarios, turnos, planes)
+- [x] Dashboard conectado al API (estadísticas y clases del día)
+- [x] CRUD de Clientes + ficha con entrenador personal (filtro por especialidad) y mediciones corporales
+- [x] CRUD de Entrenadores + ficha con clientes asignados y turnos de trabajo
+- [x] CRUD de Clases grupales (por categoría: salón, spinning, otras)
+- [x] CRUD de Horarios (clase ↔ entrenador, día, franja y salón)
+- [x] CRUD de Turnos de trabajo de los entrenadores
+- [ ] Vista semanal de horarios (grilla por día/salón)
+
+### 🔜 Etapa 6 — Planes y asignación a clientes
 - [ ] CRUD de planes (nombre, descripción, precio de referencia, duración)
 - [ ] Asignación de planes a clientes (`ClientPlan`)
 - [ ] Listado de planes de un cliente y estado de vigencia
 
 > ℹ️ Las entidades `Plan` y `ClientPlan` ya existen en el modelo y en la BD; falta el servicio de aplicación, endpoints y frontend.
-
-### 🔜 Etapa 6 — Frontend: vista general y navegación
-- [x] Layout base con navegación (dashboard, clientes, entrenadores, clases, horarios, planes)
-- [x] Cliente HTTP (`fetch`) y Dashboard conectado al API (estadísticas y clases del día)
-- [ ] Páginas CRUD de cada módulo (clientes, entrenadores, clases, horarios, planes)
 
 ### 🔜 Etapa 7 — Mejoras y despliegue
 - [ ] Autenticación/usuarios (etapa futura)
@@ -112,7 +119,7 @@ npm run dev
 
 ## 🗄️ Backup y datos de prueba
 
-- `backups/gymdb.sql` → dump de la BD `gymdb` con datos ficticios de ejemplo (5 clientes, 4 entrenadores, 5 clases, 7 horarios y 9 turnos) y las migraciones aplicadas.
+- `backups/gymdb.sql` → dump de la BD `gymdb` con datos ficticios de ejemplo (5 clientes, 4 entrenadores, 5 clases, 7 horarios, 9 turnos y 1 medición) y las migraciones aplicadas.
 - **Restaurar** (crea la BD y carga todo):
   ```bash
   mysql -h localhost -P 3306 -u root < backups/gymdb.sql
