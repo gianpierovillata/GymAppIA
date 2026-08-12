@@ -1,5 +1,7 @@
 # ⚙️ GymApi — Backend .NET 10
 
+> 📚 Índice: [🏋️ GymAppIA (README principal)](../README.md) · [🖥️ Frontend (app/README.md)](../app/README.md)
+
 API de gestión de gimnasios con **arquitectura limpia**, **EF Core + MySQL**, caché **Redis** y validación con **FluentValidation**.
 
 ## 📁 Estructura del proyecto

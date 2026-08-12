@@ -2,6 +2,13 @@
 
 Sistema de gestión para gimnasios. Maneja información de **clientes** (con entrenador personal y datos corporales), **entrenadores** (con turnos de trabajo), **clases grupales** (salón, spinning, otras actividades), **horarios/asignaciones** y **turnos**. Los **planes** ofrecidos a clientes quedan como etapa futura (sin pagos por ahora).
 
+## 📚 Documentación
+
+| Documento | Contenido |
+|-----------|-----------|
+| [**📖 `app/README.md`**](app/README.md) | Frontend: estructura, rutas, cliente HTTP, despliegue en Vercel |
+| [**📖 `api/README.md`**](api/README.md) | Backend: endpoints, migraciones, caché Redis, despliegue en MonsterASP |
+
 ## 🧰 Stack tecnológico
 
 | Capa | Tecnología |
@@ -17,11 +24,15 @@ Sistema de gestión para gimnasios. Maneja información de **clientes** (con ent
 
 ```
 GymAppIA/
-├── app/      → Frontend React (Vite)  — ver app/README.md
-├── api/      → Backend .NET 10        — ver api/README.md
-├── backups/  → Dump SQL de la BD con datos de ejemplo (`gymdb.sql`)
+├── app/      → Frontend React (Vite)
+├── api/      → Backend .NET 10 (Clean Architecture)
+├── backups/  → Dump SQL de la BD con datos de ejemplo
 └── README.md
 ```
+
+Enlaces directos:
+- 🖥️ **Frontend** → [`app/README.md`](app/README.md)
+- ⚙️ **Backend** → [`api/README.md`](api/README.md)
 
 ## 🧱 Arquitectura del API (Clean Architecture)
 

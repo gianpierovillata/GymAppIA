@@ -1,5 +1,7 @@
 # 🖥️ GymApp Frontend — React + Vite
 
+> 📚 Índice: [🏋️ GymAppIA (README principal)](../README.md) · [⚙️ API (api/README.md)](../api/README.md)
+
 Frontend de gestión de gimnasios. Consume la API de .NET (`api/`).
 
 ## 📁 Estructura del proyecto
