@@ -54,7 +54,7 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 - [x] `.gitignore` para cada proyecto
 - [x] Esqueleto del API .NET 10 con arquitectura limpia (compila y responde `/api/health`)
 - [x] Estructura base de React (Vite) en `app/` con navegación
-- [ ] Configurar Docker Compose local para MySQL y Redis (desarrollo)
+- [x] Configurar Docker Compose local para MySQL y Redis (desarrollo)
 - [ ] Integración de Aspire (AppHost) para orquestar MySQL, Redis y el API
 
 ### ✅ Etapa 2 — Modelo de datos y API de clientes
@@ -103,7 +103,42 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 
 ## 🚀 Cómo ejecutar
 
-### API
+### 🐳 Todo con Docker Compose (recomendado)
+
+Con Docker Desktop instalado, desde la raíz del repo:
+
+```bash
+cp .env.example .env      # opcional: cambiar puertos o contraseñas
+docker compose up --build -d
+```
+
+Servicios que levanta:
+
+| Servicio | Contenedor | URL / puerto host |
+|----------|------------|-------------------|
+| 🖥️ Frontend (nginx) | `gymapp-web` | http://localhost:8080 |
+| ⚙️ API (.NET 10) | `gymapp-api` | http://localhost:5099 |
+| 📖 Scalar (API docs) | `gymapp-api` | http://localhost:5099/scalar/ |
+| ❤️ Health check | `gymapp-api` | http://localhost:5099/api/health |
+| 🗄️ MySQL 8.4 | `gymapp-mysql` | `localhost:3306` (`gymapp` / `gymapp`) |
+| ⚡ Redis 7 | `gymapp-redis` | `localhost:6379` |
+
+Notas:
+
+- El frontend se compila con Vite y se sirve con **nginx**, que además hace de proxy de `/api` hacia el contenedor `api`. Así el navegador usa el mismo origen y **no hacen falta reglas CORS**.
+- La base `gymdb` se crea y carga automáticamente la **primera vez** que arranca el volumen de MySQL, usando `docker/mysql/init/01-gymdb.sql` (copia del backup completo con migraciones y datos de ejemplo).
+- Credenciales y puertos se configuran con variables en `.env` (ver `.env.example`). Los valores por defecto son solo para desarrollo.
+- Comandos útiles:
+  ```bash
+  docker compose logs -f api          # logs del API
+  docker compose ps                   # estado de los contenedores
+  docker compose down                 # detener (conserva la BD)
+  docker compose down -v && docker compose up --build -d   # resetear BD desde cero
+  ```
+
+> ⚠️ Si tenés MySQL/Redis locales usando los puertos `3306`/`6379`, cambiá `MYSQL_PORT`/`REDIS_PORT` en `.env` o detené esos servicios.
+
+### API (sin Docker)
 ```bash
 cd api
 dotnet restore
@@ -119,7 +154,7 @@ dotnet run --project src/GymApi.Api --urls http://localhost:5099
 
 > Detalles completos de endpoints y configuración en [`api/README.md`](api/README.md).
 
-### Frontend
+### Frontend (sin Docker)
 ```bash
 cd app
 npm install
@@ -217,3 +252,4 @@ VITE_API_URL = https://tu-app.monsterasp.net
 | Node.js | 20+ |
 | MySQL | 8.x (BD `gymdb`, usuario `root`) |
 | Redis | 7.x |
+| Docker Desktop | Opcional — para levantar todo con `docker compose` |

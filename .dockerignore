@@ -1,0 +1,27 @@
+# Version control / tooling
+.git
+.gitignore
+.vs
+.idea
+.vscode
+
+# .NET build artifacts
+**/bin
+**/obj
+**/publish
+
+# Node build artifacts
+**/node_modules
+**/dist
+**/.vite
+
+# Local environment / secrets
+.env
+.env.*
+**/.env
+**/.env.*
+!/.env.example
+
+# Local data
+dump.rdb
+*.log

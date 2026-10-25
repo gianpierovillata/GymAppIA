@@ -1,0 +1,75 @@
+name: gymappia
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: gymapp-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-gymroot}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-gymdb}
+      MYSQL_USER: ${MYSQL_USER:-gymapp}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-gymapp}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Seed with schema + sample data the first time the volume is created.
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: gymapp-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: gymapp-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__MySql: "Server=mysql;Port=3306;Database=${MYSQL_DATABASE:-gymdb};User=${MYSQL_USER:-gymapp};Password=${MYSQL_PASSWORD:-gymapp};"
+      ConnectionStrings__Redis: "redis:6379"
+    ports:
+      - "${API_PORT:-5099}:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: gymapp-web
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  redis_data:
