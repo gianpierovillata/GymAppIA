@@ -673,14 +673,25 @@ function AssignmentFormModal({ mode, assignment, clients, plans, onClose, onSave
 
   const selectedPlan = plans.find((p) => p.id === form.planId)
 
+  const planSelectOptions = planOptions.map((plan) => ({
+    value: plan.id,
+    label: plan.name,
+    hint: [
+      formatPrice(plan.referencePrice),
+      `${plan.durationDays} días`,
+      plan.isActive ? null : 'inactivo',
+    ]
+      .filter(Boolean)
+      .join(' · '),
+  }))
+
   const recalculateEndDate = (planId, startDate) => {
     const plan = plans.find((p) => p.id === planId)
     if (!plan || !startDate) return ''
     return addDays(startDate, plan.durationDays)
   }
 
-  const handlePlanChange = (e) => {
-    const planId = e.target.value
+  const handlePlanChange = (planId) => {
     setForm((current) => ({
       ...current,
       planId,
@@ -792,21 +803,15 @@ function AssignmentFormModal({ mode, assignment, clients, plans, onClose, onSave
 
               <div className="form-field form-field-full">
                 <label htmlFor="assignmentPlan">Plan *</label>
-                <select
+                <SearchSelect
                   id="assignmentPlan"
-                  className="input select"
+                  items={planSelectOptions}
                   value={form.planId}
                   onChange={handlePlanChange}
-                  required
-                >
-                  {planOptions.length === 0 && <option value="">Sin planes activos</option>}
-                  {planOptions.map((plan) => (
-                    <option key={plan.id} value={plan.id}>
-                      {plan.name} · {formatPrice(plan.referencePrice)} · {plan.durationDays} días
-                      {plan.isActive ? '' : ' · inactivo'}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="Buscar plan..."
+                  emptyText="Ningún plan coincide"
+                  ariaLabel="Plan a asignar"
+                />
                 {selectedPlan && (
                   <span className="cell-muted">
                     Vence: {formatDate(form.endDate)} (inicio + {selectedPlan.durationDays} días)

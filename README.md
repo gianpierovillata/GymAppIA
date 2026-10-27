@@ -82,12 +82,12 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 ### ✅ Etapa 5 — Frontend completo
 - [x] Layout responsive con navegación (dashboard, clientes, entrenadores, clases, horarios, turnos, planes)
 - [x] Dashboard conectado al API (estadísticas y clases del día)
-- [x] CRUD de Clientes + ficha con entrenador personal (filtro por especialidad) y mediciones corporales
+- [x] CRUD de Clientes + ficha con entrenador personal (filtro por especialidad y buscador de entrenadores) y mediciones corporales
 - [x] CRUD de Entrenadores + ficha con clientes asignados y turnos de trabajo
 - [x] CRUD de Clases grupales (por categoría: salón, spinning, otras)
 - [x] CRUD de Horarios (clase ↔ entrenador, día, franja y salón)
-- [x] CRUD de Turnos de trabajo de los entrenadores
-- [x] Vista semanal de horarios: grilla por día y hora con filtros por clase, entrenador, día y salón (clic en celda vacía para crear, clic en el evento para editar)
+- [x] CRUD de Turnos de trabajo de los entrenadores (solo se listan los activos)
+- [x] Vista semanal de horarios: grilla por día y hora con filtros con buscador por clase y entrenador, filtros por día y salón (clic en celda vacía para crear, clic en el evento para editar)
 
 ### ✅ Etapa 6 — Planes y asignación a clientes
 - [x] CRUD de planes (`/api/plans`): nombre único, descripción, precio de referencia y duración en días
@@ -95,7 +95,7 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 - [x] Fecha de fin calculada automáticamente (`inicio + duración`) cuando no se envía
 - [x] Estado de vigencia derivado: `Active`, `Expired` (por fecha) y `Cancelled`
 - [x] Frontend `/planes` con pestañas **Catálogo** y **Asignaciones**, filtros, modales y confirmación de borrado
-- [x] Buscador de clientes con sugerencias en Asignaciones (filtra al escribir, sin acentos, navegable por teclado)
+- [x] Buscador con sugerencias en Asignaciones para cliente y plan (filtra al escribir, sin acentos, navegable por teclado)
 - [x] Borrado protegido: no se elimina un plan con asignaciones activas
 
 > ℹ️ `Plan` y `ClientPlan` usan soft-delete (`IsActive = false`). Los estados `Expired` se calculan al leer, no se guardan.

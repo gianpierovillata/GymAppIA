@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { apiDelete, apiGet, apiPost, apiPut } from '../api/client.js'
+import SearchSelect from '../components/SearchSelect.jsx'
 
 const DAYS = [
   { value: 'Monday', label: 'Lunes' },
@@ -17,6 +18,12 @@ const CATEGORY_TONE = {
   Studio: 'indigo',
   Spinning: 'green',
   Other: 'amber',
+}
+
+const CATEGORY_LABEL = {
+  Studio: 'Salón',
+  Spinning: 'Spinning',
+  Other: 'Otras',
 }
 
 const TODAY_NAME = [
@@ -110,6 +117,28 @@ export default function Schedules() {
   const classById = useMemo(
     () => new Map(classes.map((c) => [c.id, c])),
     [classes],
+  )
+
+  const classOptions = useMemo(
+    () =>
+      classes.map((c) => ({
+        value: c.id,
+        label: c.name,
+        hint: [CATEGORY_LABEL[c.category] ?? c.category, c.isActive ? null : 'inactiva']
+          .filter(Boolean)
+          .join(' · '),
+      })),
+    [classes],
+  )
+
+  const trainerOptions = useMemo(
+    () =>
+      trainers.map((t) => ({
+        value: t.id,
+        label: `${t.firstName} ${t.lastName}`,
+        hint: [t.specialty, t.isActive ? null : 'inactivo'].filter(Boolean).join(' · '),
+      })),
+    [trainers],
   )
 
   const weekDays = filterDay ? DAYS.filter((d) => d.value === filterDay) : DAYS
@@ -212,30 +241,28 @@ export default function Schedules() {
                 </button>
               </div>
               <div className="filters">
-                <select
-                  className="input select filter"
+                <SearchSelect
+                  className="filter-combobox"
+                  items={classOptions}
                   value={filterClass}
-                  onChange={(e) => setFilterClass(e.target.value)}
-                >
-                  <option value="">Todas las clases</option>
-                  {classes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  className="input select filter"
+                  onChange={setFilterClass}
+                  placeholder="Todas las clases"
+                  emptyText="Ninguna clase coincide"
+                  ariaLabel="Filtrar horarios por clase"
+                  clearable
+                  clearLabel="Quitar filtro de clase"
+                />
+                <SearchSelect
+                  className="filter-combobox"
+                  items={trainerOptions}
                   value={filterTrainer}
-                  onChange={(e) => setFilterTrainer(e.target.value)}
-                >
-                  <option value="">Todos los entrenadores</option>
-                  {trainers.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.firstName} {t.lastName}
-                    </option>
-                  ))}
-                </select>
+                  onChange={setFilterTrainer}
+                  placeholder="Todos los entrenadores"
+                  emptyText="Ningún entrenador coincide"
+                  ariaLabel="Filtrar horarios por entrenador"
+                  clearable
+                  clearLabel="Quitar filtro de entrenador"
+                />
                 <select
                   className="input select filter"
                   value={filterDay}
@@ -508,11 +535,29 @@ function ScheduleFormModal({ mode, schedule, preset, classes, trainers, onClose,
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
+  const classOptions = classes.map((c) => ({
+    value: c.id,
+    label: c.name,
+    hint: CATEGORY_LABEL[c.category] ?? '',
+  }))
+
+  const trainerOptions = trainers.map((t) => ({
+    value: t.id,
+    label: `${t.firstName} ${t.lastName}`,
+    hint: t.specialty ?? '',
+  }))
+
   const setField = (field) => (e) =>
     setForm((f) => ({ ...f, [field]: e.target.value }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!form.classActivityId || !form.trainerId) {
+      setError('Seleccioná una clase y un entrenador.')
+      return
+    }
+
     setSaving(true)
     setError(null)
 
@@ -560,39 +605,33 @@ function ScheduleFormModal({ mode, schedule, preset, classes, trainers, onClose,
             <div className="form-grid">
               <div className="form-field form-field-full">
                 <label htmlFor="classActivityId">Clase *</label>
-                <select
+                <SearchSelect
                   id="classActivityId"
-                  className="input select"
+                  items={classOptions}
                   value={form.classActivityId}
-                  onChange={setField('classActivityId')}
-                  required
-                >
-                  <option value="">Seleccionar clase...</option>
-                  {classes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) =>
+                    setForm((current) => ({ ...current, classActivityId: value }))
+                  }
+                  placeholder="Buscar clase..."
+                  emptyText="Ninguna clase coincide"
+                  ariaLabel="Clase del horario"
+                  autoFocus
+                />
               </div>
 
               <div className="form-field form-field-full">
                 <label htmlFor="trainerId">Entrenador *</label>
-                <select
+                <SearchSelect
                   id="trainerId"
-                  className="input select"
+                  items={trainerOptions}
                   value={form.trainerId}
-                  onChange={setField('trainerId')}
-                  required
-                >
-                  <option value="">Seleccionar entrenador...</option>
-                  {trainers.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.firstName} {t.lastName}
-                      {t.specialty ? ` · ${t.specialty}` : ''}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) =>
+                    setForm((current) => ({ ...current, trainerId: value }))
+                  }
+                  placeholder="Buscar entrenador..."
+                  emptyText="Ningún entrenador coincide"
+                  ariaLabel="Entrenador del horario"
+                />
               </div>
 
               <div className="form-field">

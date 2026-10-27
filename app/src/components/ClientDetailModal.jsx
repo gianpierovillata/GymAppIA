@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { apiDelete, apiGet, apiPost, apiPut } from '../api/client.js'
+import SearchSelect from './SearchSelect.jsx'
 
 const formatDate = (value) => value?.slice(0, 10) ?? '—'
 
@@ -18,6 +19,7 @@ export default function ClientDetailModal({ clientId, onClose, onUpdated }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [assigning, setAssigning] = useState(false)
+  const [savingTrainer, setSavingTrainer] = useState(false)
   const [selectedTrainer, setSelectedTrainer] = useState('')
   const [specialtyFilter, setSpecialtyFilter] = useState('')
   const [measureModal, setMeasureModal] = useState(null)
@@ -59,16 +61,17 @@ export default function ClientDetailModal({ clientId, onClose, onUpdated }) {
   const showToast = (type, message) => setToast({ type, message })
 
   const assignTrainer = async (trainerId) => {
-    setAssigning(true)
+    setSavingTrainer(true)
     try {
       const updated = await apiPut(`/clients/${clientId}/personal-trainer`, { trainerId })
       setClient(updated)
       setSelectedTrainer('')
       setAssigning(false)
+      setSavingTrainer(false)
       showToast('success', updated.trainerId ? 'Entrenador asignado.' : 'Entrenador quitado.')
       onUpdated?.()
     } catch (err) {
-      setAssigning(false)
+      setSavingTrainer(false)
       showToast('error', err.message)
     }
   }
@@ -93,6 +96,11 @@ export default function ClientDetailModal({ clientId, onClose, onUpdated }) {
   const filteredTrainers = specialtyFilter
     ? activeTrainers.filter((t) => t.specialty === specialtyFilter)
     : activeTrainers
+  const trainerOptions = filteredTrainers.map((t) => ({
+    value: t.id,
+    label: `${t.firstName} ${t.lastName}`,
+    hint: t.specialty ?? '',
+  }))
   const latest = measurements[0]
   const bmi =
     latest?.weightKg && latest?.heightCm
@@ -179,27 +187,27 @@ export default function ClientDetailModal({ clientId, onClose, onUpdated }) {
                       </select>
                     </div>
                     <div className="assign-row">
-                      <select
-                        className="input select"
+                      <SearchSelect
+                        id="assignTrainer"
+                        items={trainerOptions}
                         value={selectedTrainer}
-                        onChange={(e) => setSelectedTrainer(e.target.value)}
-                      >
-                        <option value="">Seleccionar entrenador...</option>
-                        {filteredTrainers.map((t) => (
-                          <option key={t.id} value={t.id}>
-                            {t.firstName} {t.lastName}
-                            {t.specialty ? ` · ${t.specialty}` : ''}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={setSelectedTrainer}
+                        placeholder="Buscar entrenador..."
+                        emptyText="Ningún entrenador coincide"
+                        ariaLabel="Entrenador a asignar"
+                      />
                       <button
                         className="btn btn-primary"
-                        disabled={!selectedTrainer || assigning}
+                        disabled={!selectedTrainer || savingTrainer}
                         onClick={() => assignTrainer(selectedTrainer)}
                       >
-                        Guardar
+                        {savingTrainer ? 'Guardando...' : 'Guardar'}
                       </button>
-                      <button className="btn btn-ghost" onClick={() => setAssigning(false)}>
+                      <button
+                        className="btn btn-ghost"
+                        onClick={() => setAssigning(false)}
+                        disabled={savingTrainer}
+                      >
                         Cancelar
                       </button>
                     </div>

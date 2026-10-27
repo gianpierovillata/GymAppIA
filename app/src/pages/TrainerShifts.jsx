@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { apiDelete, apiGet, apiPost, apiPut } from '../api/client.js'
+import SearchSelect from '../components/SearchSelect.jsx'
 
 const DAYS = [
   { value: 'Monday', label: 'Lunes' },
@@ -52,16 +53,27 @@ export default function TrainerShifts() {
     return () => clearTimeout(timer)
   }, [toast])
 
+  const activeShifts = useMemo(() => (shifts ?? []).filter((s) => s.isActive), [shifts])
+
   const filtered = useMemo(() => {
-    if (!shifts) return []
-    return shifts.filter(
+    return activeShifts.filter(
       (s) =>
         (!filterTrainer || s.trainerId === filterTrainer) &&
         (!filterDay || s.dayOfWeek === filterDay),
     )
-  }, [shifts, filterTrainer, filterDay])
+  }, [activeShifts, filterTrainer, filterDay])
 
   const activeTrainers = trainers.filter((t) => t.isActive)
+
+  const trainerOptions = useMemo(
+    () =>
+      trainers.map((t) => ({
+        value: t.id,
+        label: `${t.firstName} ${t.lastName}`,
+        hint: [t.specialty, t.isActive ? null : 'inactivo'].filter(Boolean).join(' · '),
+      })),
+    [trainers],
+  )
 
   const handleSaved = (message) => {
     setModal(null)
@@ -113,18 +125,17 @@ export default function TrainerShifts() {
         <div className="card">
           <div className="toolbar">
             <div className="filters">
-              <select
-                className="input select filter"
+              <SearchSelect
+                className="filter-combobox"
+                items={trainerOptions}
                 value={filterTrainer}
-                onChange={(e) => setFilterTrainer(e.target.value)}
-              >
-                <option value="">Todos los entrenadores</option>
-                {trainers.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.firstName} {t.lastName}
-                  </option>
-                ))}
-              </select>
+                onChange={setFilterTrainer}
+                placeholder="Todos los entrenadores"
+                emptyText="Ningún entrenador coincide"
+                ariaLabel="Filtrar turnos por entrenador"
+                clearable
+                clearLabel="Quitar filtro de entrenador"
+              />
               <select
                 className="input select filter"
                 value={filterDay}
@@ -139,7 +150,7 @@ export default function TrainerShifts() {
               </select>
             </div>
             <span className="table-count">
-              {filtered.length} de {shifts.length}
+              {filtered.length} de {activeShifts.length}
             </span>
           </div>
 
@@ -260,11 +271,23 @@ function ShiftFormModal({ mode, shift, trainers, onClose, onSaved }) {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
 
+  const trainerOptions = trainers.map((t) => ({
+    value: t.id,
+    label: `${t.firstName} ${t.lastName}`,
+    hint: t.specialty ?? '',
+  }))
+
   const setField = (field) => (e) =>
     setForm((f) => ({ ...f, [field]: e.target.value }))
 
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!form.trainerId) {
+      setError('Seleccioná un entrenador.')
+      return
+    }
+
     setSaving(true)
     setError(null)
 
@@ -310,21 +333,18 @@ function ShiftFormModal({ mode, shift, trainers, onClose, onSaved }) {
             <div className="form-grid">
               <div className="form-field form-field-full">
                 <label htmlFor="trainerId">Entrenador *</label>
-                <select
+                <SearchSelect
                   id="trainerId"
-                  className="input select"
+                  items={trainerOptions}
                   value={form.trainerId}
-                  onChange={setField('trainerId')}
-                  required
-                >
-                  <option value="">Seleccionar entrenador...</option>
-                  {trainers.map((t) => (
-                    <option key={t.id} value={t.id}>
-                      {t.firstName} {t.lastName}
-                      {t.specialty ? ` · ${t.specialty}` : ''}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) =>
+                    setForm((current) => ({ ...current, trainerId: value }))
+                  }
+                  placeholder="Buscar entrenador..."
+                  emptyText="Ningún entrenador coincide"
+                  ariaLabel="Entrenador del turno"
+                  autoFocus
+                />
               </div>
 
               <div className="form-field">
