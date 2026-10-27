@@ -87,7 +87,7 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 - [x] CRUD de Clases grupales (por categoría: salón, spinning, otras)
 - [x] CRUD de Horarios (clase ↔ entrenador, día, franja y salón)
 - [x] CRUD de Turnos de trabajo de los entrenadores
-- [ ] Vista semanal de horarios (grilla por día/salón)
+- [x] Vista semanal de horarios: grilla por día y hora con filtros por clase, entrenador, día y salón (clic en celda vacía para crear, clic en el evento para editar)
 
 ### ✅ Etapa 6 — Planes y asignación a clientes
 - [x] CRUD de planes (`/api/plans`): nombre único, descripción, precio de referencia y duración en días

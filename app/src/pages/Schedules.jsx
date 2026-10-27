@@ -13,6 +13,26 @@ const DAYS = [
 
 const DAY_LABEL = Object.fromEntries(DAYS.map((d) => [d.value, d.label]))
 
+const CATEGORY_TONE = {
+  Studio: 'indigo',
+  Spinning: 'green',
+  Other: 'amber',
+}
+
+const TODAY_NAME = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+][new Date().getDay()]
+
+const hourOf = (time) => Number(time?.slice(0, 2) ?? 0)
+
+const padHour = (hour) => String(hour).padStart(2, '0')
+
 const formatTime = (time) => time?.slice(0, 5) ?? '--:--'
 
 const toTimeInput = (time) => time?.slice(0, 5) ?? ''
@@ -33,6 +53,8 @@ export default function Schedules() {
   const [filterClass, setFilterClass] = useState('')
   const [filterTrainer, setFilterTrainer] = useState('')
   const [filterDay, setFilterDay] = useState('')
+  const [filterRoom, setFilterRoom] = useState('')
+  const [view, setView] = useState('week')
   const [modal, setModal] = useState(null)
   const [deleteTarget, setDeleteTarget] = useState(null)
   const [toast, setToast] = useState(null)
@@ -70,9 +92,53 @@ export default function Schedules() {
       (s) =>
         (!filterClass || s.classActivityId === filterClass) &&
         (!filterTrainer || s.trainerId === filterTrainer) &&
-        (!filterDay || s.dayOfWeek === filterDay),
+        (!filterDay || s.dayOfWeek === filterDay) &&
+        (!filterRoom || s.room === filterRoom),
     )
-  }, [schedules, filterClass, filterTrainer, filterDay])
+  }, [schedules, filterClass, filterTrainer, filterDay, filterRoom])
+
+  const activeSchedules = useMemo(() => filtered.filter((s) => s.isActive), [filtered])
+
+  const rooms = useMemo(
+    () =>
+      [...new Set((schedules ?? []).filter((s) => s.isActive && s.room).map((s) => s.room))].sort(
+        (a, b) => a.localeCompare(b),
+      ),
+    [schedules],
+  )
+
+  const classById = useMemo(
+    () => new Map(classes.map((c) => [c.id, c])),
+    [classes],
+  )
+
+  const weekDays = filterDay ? DAYS.filter((d) => d.value === filterDay) : DAYS
+
+  const hours = useMemo(() => {
+    if (activeSchedules.length === 0) {
+      return Array.from({ length: 14 }, (_, i) => i + 7)
+    }
+
+    const startHours = activeSchedules.map((s) => hourOf(s.startTime))
+    const from = Math.max(5, Math.min(7, ...startHours))
+    const to = Math.min(23, Math.max(21, ...startHours) + 1)
+
+    return Array.from({ length: Math.max(1, to - from) }, (_, i) => from + i)
+  }, [activeSchedules])
+
+  const weekCells = useMemo(() => {
+    const cells = new Map()
+    for (const schedule of activeSchedules) {
+      const key = `${schedule.dayOfWeek}|${hourOf(schedule.startTime)}`
+      const list = cells.get(key) ?? []
+      list.push(schedule)
+      cells.set(key, list)
+    }
+    for (const list of cells.values()) {
+      list.sort((a, b) => a.startTime.localeCompare(b.startTime))
+    }
+    return cells
+  }, [activeSchedules])
 
   const activeClasses = classes.filter((c) => c.isActive)
   const activeTrainers = trainers.filter((t) => t.isActive)
@@ -126,50 +192,103 @@ export default function Schedules() {
       {schedules && (
         <div className="card">
           <div className="toolbar">
-            <div className="filters">
-              <select
-                className="input select filter"
-                value={filterClass}
-                onChange={(e) => setFilterClass(e.target.value)}
-              >
-                <option value="">Todas las clases</option>
-                {classes.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="input select filter"
-                value={filterTrainer}
-                onChange={(e) => setFilterTrainer(e.target.value)}
-              >
-                <option value="">Todos los entrenadores</option>
-                {trainers.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.firstName} {t.lastName}
-                  </option>
-                ))}
-              </select>
-              <select
-                className="input select filter"
-                value={filterDay}
-                onChange={(e) => setFilterDay(e.target.value)}
-              >
-                <option value="">Todos los días</option>
-                {DAYS.map((d) => (
-                  <option key={d.value} value={d.value}>
-                    {d.label}
-                  </option>
-                ))}
-              </select>
+            <div className="toolbar-left">
+              <div className="view-toggle" role="group" aria-label="Vista de horarios">
+                <button
+                  type="button"
+                  className={view === 'week' ? 'active' : ''}
+                  aria-pressed={view === 'week'}
+                  onClick={() => setView('week')}
+                >
+                  Semana
+                </button>
+                <button
+                  type="button"
+                  className={view === 'table' ? 'active' : ''}
+                  aria-pressed={view === 'table'}
+                  onClick={() => setView('table')}
+                >
+                  Tabla
+                </button>
+              </div>
+              <div className="filters">
+                <select
+                  className="input select filter"
+                  value={filterClass}
+                  onChange={(e) => setFilterClass(e.target.value)}
+                >
+                  <option value="">Todas las clases</option>
+                  {classes.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="input select filter"
+                  value={filterTrainer}
+                  onChange={(e) => setFilterTrainer(e.target.value)}
+                >
+                  <option value="">Todos los entrenadores</option>
+                  {trainers.map((t) => (
+                    <option key={t.id} value={t.id}>
+                      {t.firstName} {t.lastName}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="input select filter"
+                  value={filterDay}
+                  onChange={(e) => setFilterDay(e.target.value)}
+                >
+                  <option value="">Todos los días</option>
+                  {DAYS.map((d) => (
+                    <option key={d.value} value={d.value}>
+                      {d.label}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  className="input select filter"
+                  value={filterRoom}
+                  onChange={(e) => setFilterRoom(e.target.value)}
+                >
+                  <option value="">Todos los salones</option>
+                  {rooms.map((room) => (
+                    <option key={room} value={room}>
+                      {room}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
             <span className="table-count">
               {filtered.length} de {schedules.length}
+              {view === 'week' && filtered.some((s) => !s.isActive)
+                ? ' · la grilla muestra solo activos'
+                : ''}
             </span>
           </div>
 
-          {filtered.length === 0 ? (
+          {view === 'week' ? (
+            <WeekGrid
+              days={weekDays}
+              hours={hours}
+              cells={weekCells}
+              classById={classById}
+              onCreate={(dayOfWeek, hour) =>
+                setModal({
+                  mode: 'create',
+                  preset: {
+                    dayOfWeek,
+                    startTime: `${padHour(hour)}:00`,
+                    endTime: `${padHour(Math.min(hour + 1, 23))}:00`,
+                  },
+                })
+              }
+              onEdit={(schedule) => setModal({ mode: 'edit', schedule })}
+            />
+          ) : filtered.length === 0 ? (
             <p className="empty-state">No hay horarios con los filtros seleccionados.</p>
           ) : (
             <div className="table-wrap">
@@ -234,6 +353,7 @@ export default function Schedules() {
         <ScheduleFormModal
           mode={modal.mode}
           schedule={modal.schedule}
+          preset={modal.preset}
           classes={activeClasses}
           trainers={activeTrainers}
           onClose={() => setModal(null)}
@@ -281,7 +401,90 @@ export default function Schedules() {
   )
 }
 
-function ScheduleFormModal({ mode, schedule, classes, trainers, onClose, onSaved }) {
+function WeekGrid({ days, hours, cells, classById, onCreate, onEdit }) {
+  const cellKey = (day, hour) => `${day}|${hour}`
+
+  return (
+    <div className="week-grid-wrap">
+      <table className="week-grid">
+        <thead>
+          <tr>
+            <th scope="col" className="week-time-col">
+              Hora
+            </th>
+            {days.map((day) => (
+              <th
+                key={day.value}
+                scope="col"
+                className={day.value === TODAY_NAME ? 'week-col-today' : ''}
+              >
+                {day.label}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {hours.map((hour) => (
+            <tr key={hour}>
+              <th scope="row" className="week-time-col">
+                {padHour(hour)}:00
+              </th>
+              {days.map((day) => {
+                const items = cells.get(cellKey(day.value, hour)) ?? []
+
+                return (
+                  <td
+                    key={day.value}
+                    className={
+                      day.value === TODAY_NAME ? 'week-cell week-col-today' : 'week-cell'
+                    }
+                  >
+                    {items.map((schedule) => {
+                      const tone =
+                        CATEGORY_TONE[classById.get(schedule.classActivityId)?.category] ??
+                        'indigo'
+
+                      return (
+                        <button
+                          key={schedule.id}
+                          type="button"
+                          className={`week-event ${tone}`}
+                          onClick={() => onEdit(schedule)}
+                          title={`Editar ${schedule.classActivityName} · ${schedule.trainerName}`}
+                        >
+                          <span className="week-event-time">
+                            {formatTime(schedule.startTime)}–{formatTime(schedule.endTime)}
+                          </span>
+                          <span className="week-event-name">{schedule.classActivityName}</span>
+                          <span className="week-event-meta">
+                            {schedule.room || 'Sin salón'} · {schedule.trainerName}
+                          </span>
+                        </button>
+                      )
+                    })}
+                    {items.length === 0 && (
+                      <button
+                        type="button"
+                        className="week-empty"
+                        onClick={() => onCreate(day.value, hour)}
+                        title={`Agregar ${day.label} ${padHour(hour)}:00`}
+                        aria-label={`Agregar horario el ${day.label} a las ${padHour(hour)}:00`}
+                      >
+                        <PlusIcon />
+                      </button>
+                    )}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function ScheduleFormModal({ mode, schedule, preset, classes, trainers, onClose, onSaved }) {
   const isEdit = mode === 'edit'
   const [form, setForm] = useState(
     isEdit
@@ -296,9 +499,9 @@ function ScheduleFormModal({ mode, schedule, classes, trainers, onClose, onSaved
       : {
           classActivityId: '',
           trainerId: '',
-          dayOfWeek: 'Monday',
-          startTime: '09:00',
-          endTime: '10:00',
+          dayOfWeek: preset?.dayOfWeek ?? 'Monday',
+          startTime: preset?.startTime ?? '09:00',
+          endTime: preset?.endTime ?? '10:00',
           room: '',
         },
   )

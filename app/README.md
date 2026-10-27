@@ -137,7 +137,7 @@ VITE_API_URL = https://tu-app.monsterasp.net
 - 🏋️ **CRUD de Entrenadores** (`/entrenadores`): perfil, especialidad (con sugerencias) y eliminación.
 - 👥 **Ficha de entrenador** (botón 👁): clientes asignados y turnos de trabajo.
 - 🏟️ **CRUD de Clases** (`/clases`): categoría (salón/spinning/otras), duración y capacidad.
-- 📅 **CRUD de Horarios** (`/horarios`): clase ↔ entrenador, día, franja y salón; filtros por clase/entrenador/día.
+- 📅 **CRUD de Horarios** (`/horarios`): clase ↔ entrenador, día, franja y salón; filtros por clase/entrenador/día y **vista semanal** (grilla por día y hora, filtro por salón, clic en celda vacía para crear y clic en el evento para editar).
 - ⏰ **CRUD de Turnos de trabajo** (`/turnos`): franjas de disponibilidad de cada entrenador; filtros.
 - 💳 **Planes** (`/planes`): pestaña **Catálogo** (CRUD de planes con precio y duración) y pestaña **Asignaciones** (vincular plan ↔ cliente, fechas de vigencia, estado activo/expirado/cancelado y filtros por cliente/estado).
 - 📊 **Dashboard**: estadísticas reales y "Clases de hoy".
@@ -145,6 +145,5 @@ VITE_API_URL = https://tu-app.monsterasp.net
 
 ## 🔜 Pendiente por implementar
 
-- 🗓️ **Vista semanal de horarios**: grilla por día/salón (hoy la gestión es por tabla).
 - 🔐 Autenticación/usuarios.
 - 💰 Módulo de pagos.

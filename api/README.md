@@ -256,10 +256,11 @@ dotnet run --project src/GymApi.Api --urls http://localhost:5099
 
 ## 🔜 Pendiente por implementar
 
-- 🗓️ **Vista semanal de horarios** (agregación del lado del API).
 - 🔐 Autenticación/usuarios.
 - 💰 Módulo de pagos.
 - 🚀 Orquestación con Aspire / Docker Compose.
+
+> ℹ️ La vista semanal de horarios se resuelve en el frontend reutilizando `GET /api/schedules` (no requiere un endpoint de agregación).
 
 ## 🚀 Despliegue (MonsterASP.NET)
 

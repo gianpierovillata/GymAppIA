@@ -968,6 +968,223 @@ body {
   white-space: nowrap;
 }
 
+/* ===== Vista semanal de horarios ===== */
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.view-toggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 3px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+}
+
+.view-toggle button {
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.view-toggle button:hover {
+  color: var(--text);
+}
+
+.view-toggle button.active {
+  background: var(--surface);
+  color: var(--primary-dark);
+  box-shadow: var(--shadow-sm);
+}
+
+.week-grid-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.week-grid {
+  width: 100%;
+  min-width: 880px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.82rem;
+}
+
+.week-grid th,
+.week-grid td {
+  padding: 0.35rem;
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+
+.week-grid th:last-child,
+.week-grid td:last-child {
+  border-right: 0;
+}
+
+.week-grid tbody tr:last-child th,
+.week-grid tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.week-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 0.6rem 0.5rem;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.week-grid thead th.week-col-today {
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+}
+
+.week-time-col {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  width: 64px;
+  min-width: 64px;
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.week-grid thead .week-time-col {
+  z-index: 3;
+}
+
+.week-cell {
+  height: 76px;
+  min-width: 124px;
+}
+
+.week-grid td.week-col-today {
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.week-event {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: 100%;
+  margin-bottom: 0.3rem;
+  padding: 0.35rem 0.45rem;
+  border: 0;
+  border-left: 3px solid var(--primary);
+  border-radius: 8px;
+  background: var(--primary-soft);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, filter 0.15s ease;
+}
+
+.week-event:last-child {
+  margin-bottom: 0;
+}
+
+.week-event:hover {
+  filter: brightness(0.97);
+  box-shadow: var(--shadow-sm);
+}
+
+.week-event-time {
+  color: var(--primary-dark);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.week-event-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.week-event-meta {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.week-event.green {
+  background: var(--success-soft);
+  border-left-color: var(--success);
+}
+
+.week-event.green .week-event-time {
+  color: #047857;
+}
+
+.week-event.amber {
+  background: var(--warning-soft);
+  border-left-color: var(--warning);
+}
+
+.week-event.amber .week-event-time {
+  color: #b45309;
+}
+
+.week-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 48px;
+  border: 1px dashed transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.week-cell:hover .week-empty,
+.week-empty:focus-visible {
+  opacity: 1;
+  border-color: var(--border);
+}
+
+.week-empty:hover {
+  background: var(--primary-soft);
+  border-color: var(--primary);
+  color: var(--primary-dark);
+}
+
+@media (hover: none) {
+  .week-empty {
+    opacity: 0.55;
+  }
+}
+
 /* ===== Responsive ===== */
 @media (max-width: 1024px) {
   .topbar {
