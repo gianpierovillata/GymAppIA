@@ -726,6 +726,109 @@ body {
   color: var(--text);
 }
 
+/* ===== Combobox con búsqueda ===== */
+.combobox {
+  position: relative;
+  width: 100%;
+}
+
+.combobox .input {
+  width: 100%;
+  padding-right: 2rem;
+}
+
+.combobox-list {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 0.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+}
+
+.combobox-option {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.combobox-option.active,
+.combobox-option:hover {
+  background: var(--primary-soft);
+}
+
+.combobox-option-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.combobox-option-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.combobox-empty {
+  padding: 0.6rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.combobox-footer {
+  margin-top: 0.25rem;
+  padding: 0.4rem 0.6rem 0.25rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.combobox-clear {
+  position: absolute;
+  top: 50%;
+  right: 0.5rem;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.combobox-clear:hover {
+  background: var(--surface-alt);
+  color: var(--text);
+}
+
+.filter-combobox {
+  width: 240px;
+  min-width: 200px;
+}
+
+.static-field {
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-alt);
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
 /* ===== Toast ===== */
 .toast {
   position: fixed;
@@ -1238,5 +1341,9 @@ body {
 
   .metric-grid {
     grid-template-columns: 1fr;
+  }
+
+  .filter-combobox {
+    width: 100%;
   }
 }

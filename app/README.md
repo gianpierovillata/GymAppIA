@@ -139,7 +139,7 @@ VITE_API_URL = https://tu-app.monsterasp.net
 - 🏟️ **CRUD de Clases** (`/clases`): categoría (salón/spinning/otras), duración y capacidad.
 - 📅 **CRUD de Horarios** (`/horarios`): clase ↔ entrenador, día, franja y salón; filtros por clase/entrenador/día y **vista semanal** (grilla por día y hora, filtro por salón, clic en celda vacía para crear y clic en el evento para editar).
 - ⏰ **CRUD de Turnos de trabajo** (`/turnos`): franjas de disponibilidad de cada entrenador; filtros.
-- 💳 **Planes** (`/planes`): pestaña **Catálogo** (CRUD de planes con precio y duración) y pestaña **Asignaciones** (vincular plan ↔ cliente, fechas de vigencia, estado activo/expirado/cancelado y filtros por cliente/estado).
+- 💳 **Planes** (`/planes`): pestaña **Catálogo** (CRUD de planes con precio y duración) y pestaña **Asignaciones** (vincular plan ↔ cliente, fechas de vigencia, estado activo/expirado/cancelado y filtros por cliente/estado). El cliente se elige con un **buscador con sugerencias** (filtra al escribir, ignora acentos y permite navegar con el teclado), pensado para carteras grandes.
 - 📊 **Dashboard**: estadísticas reales y "Clases de hoy".
 - ⚠️ Los errores de validación del API (por ejemplo choques de horario) se muestran como toast o banner.
 

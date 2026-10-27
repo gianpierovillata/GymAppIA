@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { apiDelete, apiGet, apiPost, apiPut } from '../api/client.js'
+import SearchSelect from '../components/SearchSelect.jsx'
 
 const STATUS_LABELS = {
   Active: 'Activo',
@@ -148,6 +149,25 @@ export default function Plans() {
         `${a.firstName} ${a.lastName}`.localeCompare(`${b.firstName} ${b.lastName}`),
       ),
     [clients],
+  )
+
+  const clientOptions = useMemo(
+    () =>
+      sortedClients.map((client) => ({
+        value: client.id,
+        label: `${client.firstName} ${client.lastName}`,
+        hint: [client.email, client.isActive ? null : 'inactivo'].filter(Boolean).join(' · '),
+        inactive: !client.isActive,
+      })),
+    [sortedClients],
+  )
+
+  const activeClientOptions = useMemo(
+    () =>
+      clientOptions
+        .filter((option) => !option.inactive)
+        .map(({ inactive, ...option }) => option),
+    [clientOptions],
   )
 
   return (
@@ -313,18 +333,17 @@ export default function Plans() {
               />
             </div>
             <div className="filters">
-              <select
-                className="input select filter"
+              <SearchSelect
+                className="filter-combobox"
+                items={clientOptions}
                 value={clientFilter}
-                onChange={(e) => setClientFilter(e.target.value)}
-              >
-                <option value="">Todos los clientes</option>
-                {sortedClients.map((client) => (
-                  <option key={client.id} value={client.id}>
-                    {client.firstName} {client.lastName}
-                  </option>
-                ))}
-              </select>
+                onChange={setClientFilter}
+                placeholder="Buscar cliente..."
+                emptyText="Ningún cliente coincide"
+                ariaLabel="Filtrar asignaciones por cliente"
+                clearable
+                clearLabel="Quitar filtro de cliente"
+              />
               <select
                 className="input select filter"
                 value={statusFilter}
@@ -622,6 +641,11 @@ function PlanFormModal({ mode, plan, onClose, onSaved }) {
 function AssignmentFormModal({ mode, assignment, clients, plans, onClose, onSaved }) {
   const isEdit = mode === 'edit'
   const activeClients = clients.filter((c) => c.isActive)
+  const activeClientOptions = activeClients.map((client) => ({
+    value: client.id,
+    label: `${client.firstName} ${client.lastName}`,
+    hint: client.email ?? '',
+  }))
   const activePlans = plans.filter((p) => p.isActive)
 
   const currentPlan = isEdit ? plans.find((p) => p.id === assignment.planId) : null
@@ -638,7 +662,7 @@ function AssignmentFormModal({ mode, assignment, clients, plans, onClose, onSave
       : ''
 
   const [form, setForm] = useState({
-    clientId: isEdit ? assignment.clientId : activeClients[0]?.id ?? '',
+    clientId: isEdit ? assignment.clientId : '',
     planId: initialPlanId,
     startDate: initialStartDate,
     endDate: initialEndDate,
@@ -679,6 +703,11 @@ function AssignmentFormModal({ mode, assignment, clients, plans, onClose, onSave
 
     if (!form.endDate || form.endDate <= form.startDate) {
       setError('La fecha de fin debe ser posterior a la fecha de inicio.')
+      return
+    }
+
+    if (!isEdit && !form.clientId) {
+      setError('Seleccioná un cliente de la lista.')
       return
     }
 
@@ -735,22 +764,30 @@ function AssignmentFormModal({ mode, assignment, clients, plans, onClose, onSave
 
             <div className="form-grid">
               <div className="form-field form-field-full">
-                <label htmlFor="assignmentClient">Cliente *</label>
-                <select
-                  id="assignmentClient"
-                  className="input select"
-                  value={form.clientId}
-                  onChange={(e) => setForm((current) => ({ ...current, clientId: e.target.value }))}
-                  disabled={isEdit}
-                  required
-                >
-                  {!isEdit && <option value="">Seleccionar cliente...</option>}
-                  {activeClients.map((client) => (
-                    <option key={client.id} value={client.id}>
-                      {client.firstName} {client.lastName}
-                    </option>
-                  ))}
-                </select>
+                <label htmlFor={isEdit ? undefined : 'assignmentClient'}>Cliente *</label>
+                {isEdit ? (
+                  <div className="static-field" id="assignmentClient">
+                    {assignment.clientName}
+                  </div>
+                ) : (
+                  <SearchSelect
+                    id="assignmentClient"
+                    items={activeClientOptions}
+                    value={form.clientId}
+                    onChange={(clientId) =>
+                      setForm((current) => ({ ...current, clientId }))
+                    }
+                    placeholder="Escribí el nombre del cliente..."
+                    emptyText="Ningún cliente coincide"
+                    ariaLabel="Buscar cliente para asignar el plan"
+                    autoFocus
+                  />
+                )}
+                {!isEdit && (
+                  <span className="cell-muted">
+                    {activeClientOptions.length} clientes activos. Escribí para filtrar.
+                  </span>
+                )}
               </div>
 
               <div className="form-field form-field-full">

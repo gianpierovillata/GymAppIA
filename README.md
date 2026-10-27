@@ -95,6 +95,7 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 - [x] Fecha de fin calculada automáticamente (`inicio + duración`) cuando no se envía
 - [x] Estado de vigencia derivado: `Active`, `Expired` (por fecha) y `Cancelled`
 - [x] Frontend `/planes` con pestañas **Catálogo** y **Asignaciones**, filtros, modales y confirmación de borrado
+- [x] Buscador de clientes con sugerencias en Asignaciones (filtra al escribir, sin acentos, navegable por teclado)
 - [x] Borrado protegido: no se elimina un plan con asignaciones activas
 
 > ℹ️ `Plan` y `ClientPlan` usan soft-delete (`IsActive = false`). Los estados `Expired` se calculan al leer, no se guardan.
