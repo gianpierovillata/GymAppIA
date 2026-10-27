@@ -30,7 +30,7 @@ app/
         ├── Classes.jsx     # CRUD de clases grupales
         ├── Schedules.jsx   # CRUD de horarios/asignaciones
         ├── TrainerShifts.jsx # CRUD de turnos de trabajo
-        └── Plans.jsx       # Planes (placeholder)
+        └── Plans.jsx       # Catálogo de planes + asignaciones a clientes
 ```
 
 ## 🧭 Rutas
@@ -43,7 +43,7 @@ app/
 | `/clases` | Clases | ✅ CRUD |
 | `/horarios` | Horarios | ✅ CRUD |
 | `/turnos` | Turnos de trabajo | ✅ CRUD |
-| `/planes` | Planes | ⏳ placeholder |
+| `/planes` | Planes | ✅ Catálogo + asignaciones |
 
 ## 🔌 Cliente HTTP
 
@@ -139,12 +139,12 @@ VITE_API_URL = https://tu-app.monsterasp.net
 - 🏟️ **CRUD de Clases** (`/clases`): categoría (salón/spinning/otras), duración y capacidad.
 - 📅 **CRUD de Horarios** (`/horarios`): clase ↔ entrenador, día, franja y salón; filtros por clase/entrenador/día.
 - ⏰ **CRUD de Turnos de trabajo** (`/turnos`): franjas de disponibilidad de cada entrenador; filtros.
+- 💳 **Planes** (`/planes`): pestaña **Catálogo** (CRUD de planes con precio y duración) y pestaña **Asignaciones** (vincular plan ↔ cliente, fechas de vigencia, estado activo/expirado/cancelado y filtros por cliente/estado).
 - 📊 **Dashboard**: estadísticas reales y "Clases de hoy".
 - ⚠️ Los errores de validación del API (por ejemplo choques de horario) se muestran como toast o banner.
 
 ## 🔜 Pendiente por implementar
 
-- 💳 **Planes** (`/planes`): CRUD de planes y asignación a clientes (página placeholder; las entidades ya existen en la BD).
 - 🗓️ **Vista semanal de horarios**: grilla por día/salón (hoy la gestión es por tabla).
 - 🔐 Autenticación/usuarios.
 - 💰 Módulo de pagos.

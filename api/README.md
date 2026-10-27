@@ -93,6 +93,29 @@ api/
 
 > ⚠️ La ruta del controller es `api/TrainerShifts`. El enrutado es insensible a mayúsculas, por lo que la ruta efectiva es **`/api/trainershifts`** (sin guiones; `/api/trainer-shifts` NO existe). En este README se muestra en formato kebab solo para lectura.
 
+### Planes
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/plans` | Listar planes (incluye inactivos) |
+| GET | `/api/plans/{id}` | Obtener por id |
+| POST | `/api/plans` | Crear (nombre único, precio ≥ 0, duración 1–3650 días) |
+| PUT | `/api/plans/{id}` | Actualizar |
+| DELETE | `/api/plans/{id}` | Soft-delete (bloqueado si tiene asignaciones activas) |
+| GET | `/api/plans/assignments` | Listar todas las asignaciones activas (cliente + plan + estado) |
+
+### Planes de un cliente
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/api/clients/{clientId}/plans` | Listar planes activos asignados al cliente |
+| POST | `/api/clients/{clientId}/plans` | Asignar plan (`planId`, `startDate`, `endDate` opcional) |
+| PUT | `/api/clients/{clientId}/plans/{id}` | Actualizar plan, fechas y estado (`Active` / `Cancelled`) |
+| DELETE | `/api/clients/{clientId}/plans/{id}` | Soft-delete de la asignación |
+
+> 📅 Si no se envía `endDate`, se calcula como `startDate + plan.DurationDays`.
+> 🔄 El estado `Expired` **no se guarda**: se deriva al leer (`endDate < hoy`). Solo se puede escribir `Active` o `Cancelled`.
+> 🚫 Un plan con asignaciones activas no se puede eliminar (responde `400`); primero hay que cancelar/eliminar esas asignaciones.
+> ⚠️ El nombre del plan es único (comparación sin distinguir mayúsculas) y solo se puede asignar a clientes y planes activos.
+
 ## 🚦 Reglas de negocio (choques de horario)
 
 Un entrenador **no puede estar doblemente ocupado**. Al crear/actualizar un `Schedule` o un `TrainerShift` se valida:
@@ -113,6 +136,9 @@ La superposición se determina con `StartTime < otroEnd && otroStart < End`.
 | `classes:all` · `classes:{id}` | Clases |
 | `schedules:all` · `schedules:{id}` | Horarios |
 | `trainershifts:all` · `trainershifts:{id}` | Turnos |
+| `plans:all` · `plans:{id}` | Planes |
+| `clientplans:all` | Todas las asignaciones |
+| `clients:{clientId}:plans` | Planes asignados a un cliente |
 
 - ⏳ TTL de 5 minutos (lecturas); se invalidan al escribir (POST/PUT/DELETE).
 
@@ -230,7 +256,6 @@ dotnet run --project src/GymApi.Api --urls http://localhost:5099
 
 ## 🔜 Pendiente por implementar
 
-- 💳 **Planes y `ClientPlan`**: las entidades ya existen en el modelo y la BD, pero falta servicio de aplicación, endpoints y frontend.
 - 🗓️ **Vista semanal de horarios** (agregación del lado del API).
 - 🔐 Autenticación/usuarios.
 - 💰 Módulo de pagos.

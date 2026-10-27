@@ -1,6 +1,6 @@
 # 🏋️ GymAppIA
 
-Sistema de gestión para gimnasios. Maneja información de **clientes** (con entrenador personal y datos corporales), **entrenadores** (con turnos de trabajo), **clases grupales** (salón, spinning, otras actividades), **horarios/asignaciones** y **turnos**. Los **planes** ofrecidos a clientes quedan como etapa futura (sin pagos por ahora).
+Sistema de gestión para gimnasios. Maneja información de **clientes** (con entrenador personal y datos corporales), **entrenadores** (con turnos de trabajo), **clases grupales** (salón, spinning, otras actividades), **horarios/asignaciones**, **turnos** y **planes** (catálogo de membresías y asignación a clientes con vigencia). Los pagos quedan como etapa futura.
 
 ## 📚 Documentación
 
@@ -89,12 +89,15 @@ Regla de dependencias: **Domain ← Application ← Infrastructure ← Api** (la
 - [x] CRUD de Turnos de trabajo de los entrenadores
 - [ ] Vista semanal de horarios (grilla por día/salón)
 
-### 🔜 Etapa 6 — Planes y asignación a clientes
-- [ ] CRUD de planes (nombre, descripción, precio de referencia, duración)
-- [ ] Asignación de planes a clientes (`ClientPlan`)
-- [ ] Listado de planes de un cliente y estado de vigencia
+### ✅ Etapa 6 — Planes y asignación a clientes
+- [x] CRUD de planes (`/api/plans`): nombre único, descripción, precio de referencia y duración en días
+- [x] Asignación de planes a clientes (`/api/clients/{clientId}/plans`) y listado global (`/api/plans/assignments`)
+- [x] Fecha de fin calculada automáticamente (`inicio + duración`) cuando no se envía
+- [x] Estado de vigencia derivado: `Active`, `Expired` (por fecha) y `Cancelled`
+- [x] Frontend `/planes` con pestañas **Catálogo** y **Asignaciones**, filtros, modales y confirmación de borrado
+- [x] Borrado protegido: no se elimina un plan con asignaciones activas
 
-> ℹ️ Las entidades `Plan` y `ClientPlan` ya existen en el modelo y en la BD; falta el servicio de aplicación, endpoints y frontend.
+> ℹ️ `Plan` y `ClientPlan` usan soft-delete (`IsActive = false`). Los estados `Expired` se calculan al leer, no se guardan.
 
 ### 🔜 Etapa 7 — Mejoras y despliegue
 - [ ] Autenticación/usuarios (etapa futura)

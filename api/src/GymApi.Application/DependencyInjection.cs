@@ -2,6 +2,7 @@ using FluentValidation;
 using GymApi.Application.Features.Classes;
 using GymApi.Application.Features.ClientMeasurements;
 using GymApi.Application.Features.Clients;
+using GymApi.Application.Features.Plans;
 using GymApi.Application.Features.Schedules;
 using GymApi.Application.Features.TrainerShifts;
 using GymApi.Application.Features.Trainers;
@@ -20,6 +21,8 @@ public static class DependencyInjection
         services.AddScoped<ScheduleService>();
         services.AddScoped<TrainerShiftService>();
         services.AddScoped<ClientMeasurementService>();
+        services.AddScoped<PlanService>();
+        services.AddScoped<ClientPlanService>();
 
         return services;
     }
